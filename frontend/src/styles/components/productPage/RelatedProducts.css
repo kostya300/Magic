@@ -1,0 +1,130 @@
+/* ===== RelatedProducts ===== */
+.rp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rp-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .rp-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.rp-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rp-card:hover {
+  border-color: #4f8ef740;
+  box-shadow: 0 4px 12px rgba(79, 142, 247, 0.08);
+}
+
+.rp-card-img {
+  position: relative;
+  height: 160px;
+  background: #f3f4f6;
+  overflow: hidden;
+}
+
+.rp-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.rp-card:hover .rp-card-img img {
+  transform: scale(1.05);
+}
+
+.rp-card-discount {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #ef4444cc;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.rp-card-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rp-card-category {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.rp-card-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rp-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.rp-card-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.rp-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.rp-star {
+  color: #d1d5db;
+}
+
+.rp-star-filled {
+  color: #fbbf24 !important;
+}

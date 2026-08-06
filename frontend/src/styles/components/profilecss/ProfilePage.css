@@ -1,0 +1,86 @@
+/* ===== ProfilePage: основной layout-файл ===== */
+.profile-page {
+  --_bg: #f3f4f6;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  display: flex;
+  height: 100vh;
+  background: var(--_bg);
+  font-family: var(--_font-main);
+  color: var(--_text);
+  overflow: hidden;
+}
+
+/* Скроллбар */
+.profile-page-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.profile-page-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.profile-page-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+.profile-page-scroll::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Контентная область */
+.profile-page-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.profile-page-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  padding-right: 24px;
+  padding-bottom: 48px;
+}
+
+/* Заголовок страницы */
+.profile-page-header {
+  margin-bottom: 24px;
+}
+.profile-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--_text);
+  margin: 0;
+  line-height: 1.3;
+}
+.profile-page-subtitle {
+  font-size: 14px;
+  color: var(--_text-sec);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* Сетка Chart + Activity */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+/* Адаптив */
+@media (max-width: 767px) {
+  .profile-page-scroll {
+    padding: 16px;
+  }
+  .profile-page-title {
+    font-size: 18px;
+  }
+}

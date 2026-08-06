@@ -1,0 +1,43 @@
+/* ===== Brands ===== */
+.general-brands {
+  --_card: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_font-mono: 'JetBrains Mono', monospace;
+
+  background: var(--_card);
+  border: 1px solid var(--_border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 48px;
+}
+.general-brands-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--_font-mono);
+  margin-bottom: 24px;
+}
+.general-brands-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+.general-brands-item {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+.general-brands-item:hover {
+  color: #111827;
+}

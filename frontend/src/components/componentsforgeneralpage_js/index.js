@@ -1,0 +1,13 @@
+export { default as AnnouncementBar } from './AnnouncementBar';
+export { default as Brands } from './Brands';
+export { default as Categories } from './Categories';
+export { default as Footer } from './Footer';
+export { default as Header } from './Header';
+export { default as Hero } from './Hero';
+export { default as NewArrivals } from './NewArrivals';
+export { default as Newsletter } from './Newsletter';
+export { default as ProductCard } from './ProductCard';
+export { default as Products } from './Products';
+export { default as Promo } from './Promo';
+export { default as StarIcon } from './StarIcon';
+export { default as TrustBadges } from './TrustBadges';

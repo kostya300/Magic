@@ -1,0 +1,82 @@
+/* ===== Chart Area: переменные темы ===== */
+.profile-chart {
+  --_card-bg: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+  --_success: #10b981;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --_font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  background: var(--_card-bg);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.profile-chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--_text);
+  margin: 0;
+  line-height: 1.3;
+}
+.profile-chart-subtitle {
+  font-size: 13px;
+  color: var(--_text-sec);
+  margin: 4px 0 0;
+}
+.profile-chart-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-family: var(--_font-mono);
+  color: var(--_success);
+  font-weight: 500;
+}
+.profile-chart-trend svg {
+  width: 12px;
+  height: 12px;
+}
+
+.profile-chart-container {
+  flex: 1;
+  min-height: 200px;
+}
+
+/* Tooltip for chart */
+.profile-chart-tooltip {
+  background: var(--_card-bg);
+  border: 1px solid var(--_border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: var(--_font-mono);
+}
+.profile-chart-tooltip-month {
+  color: var(--_text-sec);
+  margin-bottom: 2px;
+}
+.profile-chart-tooltip-value {
+  color: var(--_text);
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .profile-chart {
+    padding: 16px;
+  }
+  .profile-chart-container {
+    min-height: 180px;
+  }
+}

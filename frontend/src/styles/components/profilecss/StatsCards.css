@@ -1,0 +1,107 @@
+/* ===== Stats Cards: переменные темы ===== */
+.profile-cards {
+  --_card-bg: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_sec-bg: #f9fafb;
+  --_accent: #4f8ef7;
+  --_success: #10b981;
+  --_danger: #ef4444;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --_font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.profile-stat-card {
+  background: var(--_card-bg);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+.profile-stat-card:hover {
+  border-color: #d1d5db;
+}
+
+.profile-stat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.profile-stat-label {
+  font-size: 13px;
+  color: var(--_text-sec);
+  line-height: 1.3;
+}
+.profile-stat-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--_sec-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.profile-stat-icon-wrap svg {
+  color: var(--_accent);
+}
+
+.profile-stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--_text);
+  line-height: 1;
+}
+.profile-stat-delta-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.profile-stat-arrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.profile-stat-arrow.up {
+  color: var(--_success);
+}
+.profile-stat-arrow.down {
+  color: var(--_danger);
+}
+.profile-stat-delta {
+  font-size: 11px;
+  font-family: var(--_font-mono);
+  font-weight: 500;
+}
+.profile-stat-delta.up {
+  color: var(--_success);
+}
+.profile-stat-delta.down {
+  color: var(--_danger);
+}
+.profile-stat-sub {
+  font-size: 11px;
+  color: var(--_text-sec);
+}
+
+@media (max-width: 767px) {
+  .profile-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .profile-stat-card {
+    padding: 14px;
+  }
+  .profile-stat-value {
+    font-size: 20px;
+  }
+}

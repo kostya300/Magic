@@ -1,0 +1,217 @@
+/* ===== Header / Navbar ===== */
+.general-header {
+  --_bg: #ffffff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+  --_font-main: 'DM Sans', sans-serif;
+  --_font-mono: 'JetBrains Mono', monospace;
+
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--_border);
+}
+.general-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  position: relative;
+}
+
+/* Logo */
+.general-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.general-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--_accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.general-logo-icon svg {
+  color: #fff;
+}
+.general-logo-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--_text);
+}
+
+/* Nav */
+.general-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 16px;
+}
+.general-nav a {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--_text-sec);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.general-nav a:hover {
+  color: var(--_text);
+  background: rgba(249, 250, 251, 0.7);
+}
+
+/* Search */
+.general-search-wrap {
+  flex: 1;
+  max-width: 480px;
+}
+.general-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(249, 250, 251, 0.7);
+  border: 1px solid var(--_border);
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.general-search:focus-within {
+  border-color: rgba(79, 142, 247, 0.6);
+  box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1);
+}
+.general-search svg {
+  flex-shrink: 0;
+  color: var(--_text-sec);
+}
+.general-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--_text);
+  outline: none;
+  font-family: var(--_font-main);
+}
+.general-search input::placeholder {
+  color: var(--_text-sec);
+}
+
+/* Header icons */
+.general-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.general-header-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--_text-sec);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+.general-header-btn:hover {
+  background: var(--_bg);
+  color: var(--_text);
+}
+.general-header-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: var(--_accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--_font-mono);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile menu */
+.general-mobile-menu {
+  display: none;
+  padding: 16px 24px;
+  border-top: 1px solid var(--_border);
+  flex-direction: column;
+  gap: 4px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 50;
+}
+.general-mobile-menu.open {
+  display: flex;
+}
+
+.general-mobile-menu a {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--_text-sec);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.general-mobile-menu a:hover {
+  color: var(--_text);
+  background: rgba(249, 250, 251, 0.7);
+}
+
+.general-mobile-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--_border);
+}
+
+.burger-btn {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .burger-btn {
+    display: flex;
+  }
+}
+
+@media (max-width: 1023px) {
+  .general-nav {
+    display: none;
+  }
+  .general-search-wrap {
+    display: none;
+  }
+  .general-mobile-menu {
+    display: none;
+  }
+  .general-mobile-menu.open {
+    display: flex;
+  }
+  .general-auth-desktop {
+    display: none !important;
+  }
+}

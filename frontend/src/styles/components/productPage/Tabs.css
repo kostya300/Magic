@@ -1,0 +1,175 @@
+/* ===== Tabs ===== */
+.tb-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tb-header {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.tb-tab {
+  padding-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tb-tab:hover {
+  color: #111827;
+}
+
+.tb-tab-active {
+  color: #111827 !important;
+  border-bottom-color: #4f8ef7 !important;
+}
+
+.tb-content {
+  min-height: 100px;
+}
+
+.tb-text {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.7;
+  max-width: 640px;
+}
+
+/* Specs */
+.tb-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 720px;
+}
+
+.tb-spec-row {
+  display: flex;
+  gap: 16px;
+  padding: 12px 20px;
+  font-size: 14px;
+}
+
+.tb-spec-row:nth-child(odd) {
+  background: #f9fafb;
+}
+
+.tb-spec-row:nth-child(even) {
+  background: #f9fafb40;
+}
+
+.tb-spec-label {
+  color: #6b7280;
+  min-width: 160px;
+  flex-shrink: 0;
+}
+
+.tb-spec-value {
+  color: #111827;
+  font-weight: 500;
+}
+
+/* Reviews */
+.tb-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.tb-review-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tb-review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tb-review-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.tb-review-date {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 4px 0 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tb-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.tb-star {
+  color: #d1d5db;
+}
+
+.tb-star-filled {
+  color: #fbbf24 !important;
+}
+
+.tb-review-text {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tb-helpful-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.tb-helpful-btn:hover {
+  color: #111827;
+}
+
+/* Empty state */
+.tb-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: #6b7280;
+}
+
+.tb-empty-text {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.tb-empty-sub {
+  font-size: 12px;
+  margin: 0;
+}

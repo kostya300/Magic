@@ -1,0 +1,38 @@
+/* ===== GeneralPage: основной layout ===== */
+.general-page {
+  --_bg: #f3f4f6;
+  --_card: #ffffff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+  --_success: #10b981;
+  --_danger: #ef4444;
+  --_warning: #f59e0b;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --_font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--_bg);
+  font-family: var(--_font-main);
+  color: var(--_text);
+}
+
+.general-main {
+  flex: 1;
+  width: 100%;
+}
+
+.general-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.general-footer {
+  border-top: 1px solid var(--_border);
+  background: var(--_card);
+  margin-top: 48px;
+}

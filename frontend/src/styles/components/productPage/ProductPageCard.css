@@ -1,0 +1,160 @@
+/* frontend/src/styles/components/ProductPageCard.css */
+
+.product-page-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.product-page-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.product-page-card h3 {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+    color: #1a1a1a;
+    line-height: 1.2;
+}
+
+.product-page-card .description {
+    margin-bottom: 1.5rem;
+    color: #555;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.price {
+    display: inline-block;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.price span {
+    font-size: 0.7em;
+    margin-left: 5px;
+}
+
+.product-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    margin-bottom: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.product-meta span {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.product-meta strong {
+    color: #222;
+    font-weight: 600;
+}
+
+.product-page-card .actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.action-btn {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.action-btn:hover {
+    background: #e0e0e0;
+    transform: scale(1.05);
+}
+
+.action-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+}
+
+.action-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: calc(100% + 8px);
+}
+
+/* Стили для кнопки "Назад" */
+.back-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #666;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.25s;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.back-link:hover {
+    background: #444;
+}
+
+/* ===== New Product Page Layout ===== */
+.product-detail-new {
+    padding: 24px 0;
+}
+
+.product-main-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 40px;
+}
+
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,113 @@
+/* ===== Topbar: переменные темы ===== */
+.profile-topbar {
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_sec-bg: #f9fafb;
+  --_accent: #4f8ef7;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --_font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--_border);
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.profile-mobile-toggle {
+  display: flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--_text-sec);
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.profile-mobile-toggle:hover {
+  color: var(--_text);
+  background: var(--_sec-bg);
+}
+
+.profile-search-wrap {
+  flex: 1;
+  max-width: 320px;
+}
+.profile-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--_sec-bg);
+  border: 1px solid var(--_border);
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.profile-search:focus-within {
+  border-color: var(--_accent);
+  box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.1);
+}
+.profile-search svg {
+  flex-shrink: 0;
+  color: var(--_text-sec);
+}
+.profile-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--_text);
+  outline: none;
+  font-family: var(--_font-main);
+}
+.profile-search input::placeholder {
+  color: var(--_text-sec);
+}
+
+.profile-topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-notif-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--_text-sec);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.profile-notif-btn:hover {
+  background: var(--_sec-bg);
+  color: var(--_text);
+}
+.profile-notif-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--_accent);
+  border-radius: 50%;
+}
+
+.profile-avatar-top {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--_border);
+}

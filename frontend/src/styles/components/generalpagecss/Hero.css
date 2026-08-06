@@ -1,0 +1,175 @@
+/* ===== Hero Section ===== */
+.general-hero {
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  min-height: 380px;
+  margin-bottom: 48px;
+}
+.general-hero-main {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 320px;
+}
+.general-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.general-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+}
+.general-hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 32px;
+}
+.general-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(79, 142, 247, 0.15);
+  color: var(--_accent);
+  border: 1px solid rgba(79, 142, 247, 0.3);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+.general-hero-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--_text);
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+.general-hero-sub {
+  color: var(--_text-sec);
+  font-size: 14px;
+  margin-bottom: 20px;
+  max-width: 400px;
+}
+.general-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.general-hero-buy {
+  background: var(--_accent);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.general-hero-buy:hover {
+  background: #3d7de8;
+}
+.general-hero-detail {
+  color: var(--_text-sec);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.general-hero-detail:hover {
+  color: var(--_text);
+}
+
+/* Side banners */
+.general-hero-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.general-hero-banner {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  flex: 1;
+  min-height: 150px;
+}
+.general-hero-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.general-hero-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+}
+.general-hero-banner-content {
+  position: relative;
+  z-index: 1;
+}
+.general-hero-banner-cat {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.general-hero-banner-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--_text);
+  margin-bottom: 4px;
+}
+.general-hero-banner-price {
+  font-size: 14px;
+  color: var(--_text-sec);
+  margin-bottom: 12px;
+}
+.general-hero-banner-btn {
+  font-size: 12px;
+  background: var(--_text);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.general-hero-banner-btn:hover {
+  opacity: 0.9;
+}
+
+@media (min-width: 1024px) {
+  .general-hero {
+    /*grid-template-columns: 1fr 420px;*/
+  }
+}
+@media (max-width: 767px) {
+  .general-hero-main {
+    min-height: 240px;
+  }
+  .general-hero-title {
+    font-size: 22px;
+  }
+  .general-hero-content {
+    padding: 20px;
+  }
+}

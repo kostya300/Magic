@@ -1,0 +1,52 @@
+/* ===== Trust Badges ===== */
+.general-trust {
+  --_card: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.general-trust-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--_card);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.general-trust-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(79, 142, 247, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.general-trust-icon svg {
+  color: var(--_accent);
+}
+.general-trust-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--_text);
+  margin: 0 0 2px;
+}
+.general-trust-sub {
+  font-size: 12px;
+  color: var(--_text-sec);
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .general-trust {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

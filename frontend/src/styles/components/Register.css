@@ -1,0 +1,4 @@
+/* frontend/src/styles/components/Register.css */
+/* Переиспользует стили из Login.css (auth-page, auth-card, auth-form и т.д.) */
+/* Можно импортировать Login.css или дублировать, если нужно разделение */
+

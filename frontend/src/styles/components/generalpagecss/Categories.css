@@ -1,0 +1,81 @@
+/* ===== Categories ===== */
+.general-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.general-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+.general-section-link {
+  font-size: 12px;
+  color: #4f8ef7;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.15s;
+}
+.general-section-link:hover {
+  opacity: 0.8;
+}
+
+.general-categories {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 48px;
+}
+.general-categories::-webkit-scrollbar {
+  height: 4px;
+}
+.general-categories::-webkit-scrollbar-track {
+  background: transparent;
+}
+.general-categories::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+.general-cat-btn {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  min-width: 100px;
+}
+.general-cat-btn:hover {
+  border-color: rgba(79, 142, 247, 0.3);
+  background: #fff;
+  color: #111827;
+}
+.general-cat-btn.active {
+  background: rgba(79, 142, 247, 0.1);
+  border-color: rgba(79, 142, 247, 0.5);
+  color: #111827;
+}
+.general-cat-icon {
+  font-size: 28px;
+}
+.general-cat-name {
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+.general-cat-count {
+  font-size: 10px;
+  color: #6b7280;
+  font-family: 'JetBrains Mono', monospace;
+}

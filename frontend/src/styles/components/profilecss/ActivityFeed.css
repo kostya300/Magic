@@ -1,0 +1,100 @@
+/* ===== Activity Feed: переменные темы ===== */
+.profile-activity {
+  --_card-bg: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_success: #10b981;
+  --_warning: #f59e0b;
+  --_info: #4f8ef7;
+  --_font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --_font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  background: var(--_card-bg);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.profile-activity-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--_text);
+  margin: 0;
+}
+.profile-activity-link {
+  font-size: 11px;
+  color: var(--_info);
+  text-decoration: none;
+  cursor: pointer;
+  transition: text-decoration 0.15s;
+}
+.profile-activity-link:hover {
+  text-decoration: underline;
+}
+
+.profile-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.profile-activity-item {
+  display: flex;
+  gap: 12px;
+}
+.profile-activity-icon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.profile-activity-icon.success svg {
+  color: var(--_success);
+}
+.profile-activity-icon.info svg {
+  color: var(--_info);
+}
+.profile-activity-icon.warning svg {
+  color: var(--_warning);
+}
+.profile-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+.profile-activity-title-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--_text);
+  line-height: 1.3;
+}
+.profile-activity-sub {
+  font-size: 11px;
+  color: var(--_text-sec);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+.profile-activity-time {
+  font-size: 10px;
+  color: var(--_text-sec);
+  font-family: var(--_font-mono);
+  flex-shrink: 0;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .profile-activity {
+    padding: 16px;
+  }
+}

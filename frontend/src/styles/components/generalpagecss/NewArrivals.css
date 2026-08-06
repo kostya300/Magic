@@ -1,0 +1,105 @@
+/* ===== New Arrivals ===== */
+.general-new-grid {
+  --_card: #fff;
+  --_border: #e5e7eb;
+  --_text: #111827;
+  --_text-sec: #6b7280;
+  --_accent: #4f8ef7;
+  --_font-main: 'DM Sans', sans-serif;
+  --_font-mono: 'JetBrains Mono', monospace;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.general-new-card {
+  background: var(--_card);
+  border: 1px solid var(--_border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.general-new-card:hover {
+  border-color: rgba(79, 142, 247, 0.4);
+  box-shadow: 0 4px 16px rgba(79, 142, 247, 0.06);
+}
+.general-new-img-wrap {
+  position: relative;
+  height: 176px;
+  background: rgba(249, 250, 251, 0.5);
+  overflow: hidden;
+}
+.general-new-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.general-new-card:hover .general-new-img {
+  transform: scale(1.05);
+}
+.general-new-new-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #10b981;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--_font-mono);
+}
+.general-new-info {
+  padding: 14px;
+}
+.general-new-cat {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--_font-mono);
+  margin-bottom: 4px;
+}
+.general-new-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.general-new-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.general-new-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+.general-new-cart-btn {
+  font-size: 12px;
+  background: #4f8ef7;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--_font-main);
+  transition: background 0.15s;
+}
+.general-new-cart-btn:hover {
+  background: #3d7de8;
+}
+
+@media (min-width: 768px) {
+  .general-new-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
