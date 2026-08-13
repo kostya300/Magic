@@ -1,6 +1,6 @@
 // frontend/src/pages/Ordersgeneral.js
 import { useState, useEffect } from 'react';
-import { authFetch, isAuthenticated, clearAuthTokens } from '../utils/authUtils';
+import { isAuthenticated, authFetch, clearAuthTokens } from '../utils/authUtils';
 import '../styles/components/orderpagecomponentsstyles/Ordersgeneral.css';
 import OrdersList from '../components/orderpagecomponentsjs/OrdersList';
 
@@ -44,31 +44,7 @@ function Ordersgeneral() {
     loadOrders(newPage);
   };
 
-  const fmtPrice = (price) => {
-    return `₽ ${Number(price).toLocaleString('ru')}`;
-  };
 
-  const getStatusLabel = (status) => {
-    const labels = {
-      pending: 'Ожидает обработки',
-      confirmed: 'Подтверждён',
-      shipped: 'Отправлен',
-      delivered: 'Доставлен',
-      cancelled: 'Отменён',
-    };
-    return labels[status] || status;
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      pending: '#f59e0b',
-      confirmed: '#3b82f6',
-      shipped: '#8b5cf6',
-      delivered: '#10b981',
-      cancelled: '#ef4444',
-    };
-    return colors[status] || '#6b7280';
-  };
 
   if (loading) return (
     <div className="orders-page">
@@ -97,12 +73,7 @@ function Ordersgeneral() {
           <p>У вас пока нет заказов</p>
         </div>
       ) : (
-        <OrdersList
-          orders={orders}
-          fmtPrice={fmtPrice}
-          getStatusLabel={getStatusLabel}
-          getStatusColor={getStatusColor}
-        />
+        <OrdersList orders={orders} />
       )}
 
       {total > pageSize && (
