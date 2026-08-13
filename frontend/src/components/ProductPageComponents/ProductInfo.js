@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Shield,
   Truck,
@@ -12,7 +12,7 @@ import {
   ShoppingCart,
   Headphones,
 } from "lucide-react";
-import "../../styles/components/productPage//ProductInfo.css";
+import "../../styles/components/productPage/ProductInfo.css";
 
 function Stars({ rating, size = 14 }) {
   return (
@@ -30,7 +30,7 @@ function Stars({ rating, size = 14 }) {
   );
 }
 
-export default function ProductInfo({ product, onAddToCart }) {
+export default function ProductInfo({ product, qtyRef, onAddToCart, onBuyNow }) {
   const [qty, setQty] = useState(1);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedStorage, setSelectedStorage] = useState(0);
@@ -39,9 +39,25 @@ export default function ProductInfo({ product, onAddToCart }) {
 
   const fmt = (n) => "₽ " + n.toLocaleString("ru");
 
-  const handleAdd = () => {
+  useEffect(() => {
+    if (qtyRef) qtyRef.current = qty;
+  }, [qty, qtyRef]);
+
+    const handleAdd = () => {
+    console.log('🛒 Кнопка "В корзину" нажата');
+    console.log('📦 Количество:', qty);
+    console.log('📦 Товар:', product);
+
     setAdded(true);
-    onAddToCart();
+
+    // Проверяем, что onAddToCart - это функция
+    if (typeof onAddToCart === 'function') {
+      console.log('✅ onAddToCart - функция, вызываем...');
+      onAddToCart(qty);
+    } else {
+      console.error('❌ onAddToCart НЕ является функцией!', onAddToCart);
+    }
+
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -118,11 +134,22 @@ export default function ProductInfo({ product, onAddToCart }) {
       <div className="pi-qty-row">
         <p className="pi-option-label">Количество</p>
         <div className="pi-qty-control">
-          <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="pi-qty-btn">
+
+          <button
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            onMouseDown={(e) => e.preventDefault()}
+            className="pi-qty-btn"
+            disabled={qty <= 1 || !product.inStock}
+          >
             <Minus size={13} />
           </button>
           <span className="pi-qty-num">{qty}</span>
-          <button onClick={() => setQty((q) => q + 1)} className="pi-qty-btn">
+          <button
+            onClick={() => setQty((q) => q + 1)}
+            onMouseDown={(e) => e.preventDefault()}
+            className="pi-qty-btn"
+            disabled={!product.inStock}
+          >
             <Plus size={13} />
           </button>
         </div>
@@ -137,7 +164,11 @@ export default function ProductInfo({ product, onAddToCart }) {
             !product.inStock ? "pi-btn-cart-disabled" : ""
           }`}
         >
-          {added ? <><Check size={15} /> Добавлено в корзину</> : <><ShoppingCart size={15} /> В корзину</>}
+          {added ? (
+            <><Check size={15} /> Добавлено в корзину</>
+          ) : (
+            <><ShoppingCart size={15} /> В корзину</>
+          )}
         </button>
         <button
           onClick={() => setWished(!wished)}
@@ -150,7 +181,18 @@ export default function ProductInfo({ product, onAddToCart }) {
         </button>
       </div>
 
-      <button disabled={!product.inStock} className="pi-btn-buy">
+      <button
+        disabled={!product.inStock}
+        className="pi-btn-buy"
+        onClick={() => {
+          if (onBuyNow) {
+            onBuyNow();
+          } else {
+            qtyRef.current = qty;
+            onAddToCart(qty);
+          }
+        }}
+      >
         Купить сейчас
       </button>
 

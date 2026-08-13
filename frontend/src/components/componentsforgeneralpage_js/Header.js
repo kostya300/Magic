@@ -4,7 +4,7 @@ import { Zap, Search, Heart, ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLink from '../logcomp/AuthLink';
-
+import { isAuthenticated } from '../../utils/authUtils';
 const navLinks = ['Каталог', 'Акции', 'Бренды', 'Новинки', 'Контакты'];
 
 function Header({ cartCount = 0, categories = [] }) {
@@ -16,8 +16,7 @@ function Header({ cartCount = 0, categories = [] }) {
     <header className="general-header">
       <div className="general-header-inner">
         {/* Logo */}
-        <div className="general-logo" onClick={() => window.location.reload()}>
-          <div className="general-logo-icon">
+        <div className="general-logo" onClick={() => navigate('/')}>          <div className="general-logo-icon">
             <Zap size={16} />
           </div>
           <span className="general-logo-text">Mr.Store</span>
@@ -26,7 +25,16 @@ function Header({ cartCount = 0, categories = [] }) {
         {/* Desktop nav */}
         <nav className="general-nav">
           {navLinks.map(link => (
-            <a key={link} href="#">{link}</a>
+            <a
+              key={link}
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(link === 'Каталог' ? '/' : `/category?name=${link}`);
+              }}
+            >
+              {link}
+            </a>
           ))}
         </nav>
 
@@ -55,13 +63,13 @@ function Header({ cartCount = 0, categories = [] }) {
           <button className="general-header-btn">
             <Heart size={16} />
           </button>
-          <button className="general-header-btn" onClick={() => navigate('/cart')}>
+          <button className="general-header-btn" onClick={() => navigate(isAuthenticated() ? '/cart' : '/login')}>
             <ShoppingCart size={16} />
             {cartCount > 0 && (
               <span className="general-header-badge">{cartCount}</span>
             )}
           </button>
-          <button className="general-header-btn" onClick={() => navigate('/profile')}>
+          <button className="general-header-btn" onClick={() => navigate(isAuthenticated() ? '/profile' : '/login')}>
             <User size={16} />
           </button>
           <button
@@ -76,7 +84,17 @@ function Header({ cartCount = 0, categories = [] }) {
       {/* Mobile menu */}
       <div className={`general-mobile-menu ${mobileMenu ? 'open' : ''}`}>
         {navLinks.map(link => (
-          <a key={link} href="#">{link}</a>
+          <a
+            key={link}
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenu(false);
+              navigate(link === 'Каталог' ? '/' : `/category?name=${link}`);
+            }}
+          >
+            {link}
+          </a>
         ))}
         <div className="general-mobile-auth">
           <AuthLink />

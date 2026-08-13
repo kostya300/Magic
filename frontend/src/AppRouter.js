@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './App';
 import ProductPage from './pages/ProductPage';
+import CartPage from './pages/Cart';
 import ProfilePage from './pages/ProfilePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,6 +12,7 @@ function AppRouter() {
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/products/:productId" element={<ProductPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/login" element={<Login />} />

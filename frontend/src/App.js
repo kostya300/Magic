@@ -28,6 +28,7 @@ import {
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authFetch } from './utils/authUtils';
 
 function App() {
   const navigate = useNavigate();
@@ -39,6 +40,27 @@ function App() {
 
   const onOpenProduct = (product) => {
     navigate(`/products/${product.id}`);
+  };
+
+  const onAddToCart = async (product) => {
+    try {
+      const res = await authFetch('/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: product.id,
+          quantity: 1
+        }),
+      });
+      if (res.ok) {
+        console.log(`Added ${product.name} to cart`);
+      } else {
+        const errorData = await res.json();
+        console.error('Error adding to cart:', errorData);
+      }
+    } catch (err) {
+      console.error('Failed to add to cart:', err);
+    }
   };
 
   useEffect(() => {
@@ -124,7 +146,7 @@ function App() {
           />
           <Products products={popularProducts} onOpenProduct={onOpenProduct} />
           <Promo />
-          <NewArrivals products={newArrivals} onOpenProduct={onOpenProduct} />
+          <NewArrivals products={newArrivals} onOpenProduct={onOpenProduct} onAddToCart={onAddToCart} />
           <Brands />
           <Newsletter />
         </div>

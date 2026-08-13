@@ -1,0 +1,39 @@
+/* ===== CartEmpty ===== */
+.cart-empty {
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.cart-empty-icon {
+  color: #d1d5db;
+  margin-bottom: 24px;
+}
+
+.cart-empty-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.cart-empty-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
+
+.cart-empty-btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #4f8ef7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cart-empty-btn:hover {
+  background: #3d7de8;
+}

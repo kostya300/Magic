@@ -2,6 +2,7 @@
 import '../../styles/components/generalpagecss/ProductCard.css';
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
+import { isAuthenticated, authFetch } from '../../utils/authUtils';
 
 function StarIcon({ filled }) {
   return (
@@ -51,10 +52,24 @@ function ProductCard({ product, compact = false, onOpen }) {
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!product.inStock) return;
+    if (!isAuthenticated()) {
+      window.location.href = '/login';
+      return;
+    }
     setAdded(true);
-    setTimeout(() => setAdded(false), 1400);
+    try {
+      await authFetch('/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+      setTimeout(() => setAdded(false), 1400);
+    } catch (err) {
+      console.error('Failed to add to cart:', err);
+      setAdded(false);
+    }
   };
 
   return (

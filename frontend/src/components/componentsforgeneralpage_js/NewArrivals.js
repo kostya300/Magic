@@ -5,7 +5,7 @@ import StarIcon from './StarIcon';
 
 const fmt = (n) => '₽ ' + n.toLocaleString('ru');
 
-function NewArrivals({ products, onOpenProduct }) {
+function NewArrivals({ products, onOpenProduct, onAddToCart }) {
   if (!products || products.length === 0) {
     return null;
   }
@@ -41,7 +41,15 @@ function NewArrivals({ products, onOpenProduct }) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <p className="general-new-price">{fmt(p.price)}</p>
-                <button className="general-new-cart-btn">В корзину</button>
+                <button 
+                  className="general-new-cart-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToCart?.(p);
+                  }}
+                >
+                  В корзину
+                </button>
               </div>
             </div>
           </div>
