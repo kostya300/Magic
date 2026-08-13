@@ -1,0 +1,111 @@
+/* frontend/src/styles/components/orderpagecomponentsstyles/OrdersList.css */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 12px;
+}
+
+.order-card-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.order-id {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+}
+
+.order-date {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.order-status {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.order-item-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.order-item-name {
+  font-size: 14px;
+  color: #374151;
+}
+
+.order-item-qty {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.order-item-prices {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.order-item-unit {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.order-item-total {
+  font-weight: 500;
+  font-size: 14px;
+  color: #111827;
+}
+
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 12px;
+}
+
+.order-total-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.order-total-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}

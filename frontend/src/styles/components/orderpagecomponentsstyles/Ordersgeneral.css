@@ -1,0 +1,84 @@
+/* frontend/src/styles/components/orderpagecomponentsstyles/Ordersgeneral.css */
+.orders-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.orders-loading,
+.orders-error {
+  text-align: center;
+  padding: 80px 24px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.orders-error button {
+  margin-top: 16px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: #4f8ef7;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.orders-header {
+  margin-bottom: 24px;
+}
+
+.orders-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.orders-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.orders-empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.orders-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 24px 0;
+}
+
+.orders-page-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.15s ease;
+}
+
+.orders-page-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.orders-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.orders-page-info {
+  font-size: 14px;
+  color: #6b7280;
+}

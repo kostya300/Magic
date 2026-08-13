@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import categories, products, users, reviews,cart
+from app.routers import categories, products, users, reviews,cart,orders
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -25,6 +25,7 @@ app.include_router(categories.router)
 app.include_router(products.router)
 
 app.include_router(cart.router)
+app.include_router(orders.router)
 app.include_router(users.router)
 app.include_router(reviews.router)
 

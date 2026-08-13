@@ -9,6 +9,7 @@ import ChartArea from '../components/componentsforprofilepage/ChartArea';
 import ActivityFeed from '../components/componentsforprofilepage/ActivityFeed';
 import OrdersTable from '../components/componentsforprofilepage/OrdersTable';
 import ProfileCard from '../components/componentsforprofilepage/ProfileCard';
+import Ordersgeneral from '../pages/Ordersgeneral';
 
 function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -91,30 +92,42 @@ function ProfilePage() {
         />
 
         <div className="profile-page-scroll">
-          {/* Page header */}
-          <div className="profile-page-header">
-            <h1 className="profile-page-title">Обзор</h1>
-            <p className="profile-page-subtitle">Добро пожаловать! Вот что происходит сегодня.</p>
-          </div>
-
           {/* Stats cards */}
-          <div style={{ marginBottom: '24px' }}>
-            <StatsCards />
-          </div>
+          {activeSection === 'orders' && (
+            <>
+              {/* Orders table */}
+              <Ordersgeneral />
+            </>
+          )}
 
-          {/* Chart + Activity grid */}
-          <div className="profile-grid" style={{ marginBottom: '24px' }}>
-            <ChartArea />
-            <ActivityFeed />
-          </div>
+          {activeSection !== 'orders' && (
+            <>
+              {/* Page header */}
+              <div className="profile-page-header">
+                <h1 className="profile-page-title">Обзор</h1>
+                <p className="profile-page-subtitle">Добро пожаловать! Вот что происходит сегодня.</p>
+              </div>
 
-          {/* Orders table */}
-          <div style={{ marginBottom: '24px' }}>
-            <OrdersTable />
-          </div>
+              {/* Stats cards */}
+              <div style={{ marginBottom: '24px' }}>
+                <StatsCards />
+              </div>
 
-          {/* Profile card */}
-          <ProfileCard />
+              {/* Chart + Activity grid */}
+              <div className="profile-grid" style={{ marginBottom: '24px' }}>
+                <ChartArea />
+                <ActivityFeed />
+              </div>
+
+              {/* Orders table */}
+              <div style={{ marginBottom: '24px' }}>
+                <OrdersTable />
+              </div>
+
+              {/* Profile card */}
+              <ProfileCard />
+            </>
+          )}
         </div>
       </div>
     </div>
