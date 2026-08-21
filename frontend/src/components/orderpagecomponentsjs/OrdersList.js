@@ -1,5 +1,6 @@
 // frontend/src/components/orderpagecomponentsjs/OrdersList.js
 import { useState } from 'react';
+import { authFetch } from '../../utils/authUtils';
 import OrderDeleteButton from './componentfororderlistjs/OrderDeleteButton';
 import CheckoutForm from './componentfororderlistjs/CheckoutForm';
 import PaymentConfirmed from './componentfororderlistjs/PaymentConfirmed';
@@ -10,11 +11,25 @@ function OrdersList({ orders }) {
 
   const fmtPrice = (price) => `₽ ${Number(price).toLocaleString('ru')}`;
   const getStatusLabel = (status) => {
-    const labels = { pending: 'Ожидает обработки', confirmed: 'Подтверждён', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
+    const labels = { 
+      pending: 'Ожидает обработки', 
+      awaiting_payment: 'Ожидает оплаты', 
+      confirmed: 'Подтверждён', 
+      shipped: 'Отправлен', 
+      delivered: 'Доставлен', 
+      cancelled: 'Отменён' 
+    };
     return labels[status] || status;
   };
   const getStatusColor = (status) => {
-    const colors = { pending: '#f59e0b', confirmed: '#3b82f6', shipped: '#8b5cf6', delivered: '#10b981', cancelled: '#ef4444' };
+    const colors = { 
+      pending: '#f59e0b', 
+      awaiting_payment: '#f97316', 
+      confirmed: '#3b82f6', 
+      shipped: '#8b5cf6', 
+      delivered: '#10b981', 
+      cancelled: '#ef4444' 
+    };
     return colors[status] || '#6b7280';
   };
   const [confirmedOrder, setConfirmedOrder] = useState(null);
@@ -23,11 +38,8 @@ function OrdersList({ orders }) {
   const handleDelete = async (orderId) => {
     setDeleteOrderId(orderId);
     try {
-      const res = await fetch(`/orders/${orderId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
-      if (res.ok) {
+      const res = await authFetch(`/orders/${orderId}`, { method: 'DELETE' });
+      if (res.status === 204) {
         window.location.reload();
       }
     } catch (err) {
@@ -37,20 +49,40 @@ function OrdersList({ orders }) {
 
   const handleCheckout = async (data) => {
     try {
-      const res = await fetch('/orders/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      });
-      if (res.ok) {
-        const order = await res.json();
-        setConfirmedOrder(order);
-        setCheckoutOrder(null);
+      if (data.payment === 'yookassa') {
+        // Для ЮKassa создаём платёж и перенаправляем
+        const res = await authFetch(`/orders/${checkoutOrder}/pay`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (res.ok) {
+          const result = await res.json();
+          // Перенаправляем на страницу оплаты ЮKassa
+          window.location.href = result.payment_url;
+        } else {
+          const errorData = await res.json().catch(() => ({}));
+          alert(errorData.detail || 'Ошибка при создании платежа');
+        }
+      } else {
+        // Обычный заказ без оплаты
+        const res = await authFetch('/orders/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (res.ok) {
+          const order = await res.json();
+          setConfirmedOrder(order);
+          setCheckoutOrder(null);
+        }
       }
     } catch (err) {
       console.error('Checkout error:', err);
+      alert('Ошибка при оформлении заказа');
     }
   };
 
@@ -117,6 +149,11 @@ function OrdersList({ orders }) {
               >
                 Оформить заказ
               </button>
+            )}
+            {order.status === 'awaiting_payment' && (
+              <div className="order-awaiting-payment">
+                <span>⏳ Ожидает оплаты</span>
+              </div>
             )}
           </div>
         ))}

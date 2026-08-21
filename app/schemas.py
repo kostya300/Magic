@@ -1,9 +1,10 @@
 # app/schemas.py
 from pydantic import BaseModel, Field, ConfigDict,EmailStr
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Annotated,Dict,Any
 from datetime import datetime
-
+from fastapi import Form
+import json
 
 class CategoryCreate(BaseModel):
     """
@@ -30,12 +31,52 @@ class ProductCreate(BaseModel):
     """
     name: str = Field(min_length=3, max_length=100,
                       description="Название товара (3-100 символов)")
-    description: str | None = Field(None, max_length=500,
+    description: str | None = Field(None, max_length=2500,
                                        description="Описание товара (до 500 символов)")
     price: Decimal = Field(gt=0, description="Цена товара (больше 0)", decimal_places=2)
-    image_url: str | None = Field(None, max_length=200, description="URL изображения товара")
     stock: int = Field(ge=0, description="Количество товара на складе (0 или больше)")
     category_id: int = Field(description="ID категории, к которой относится товар")
+    specs: dict | None = Field(None, description="Характеристики товара")
+
+    @classmethod
+    def as_form(
+            cls,
+            name: Annotated[str, Form(...)],
+            price: Annotated[Decimal, Form(...)],
+            stock: Annotated[int, Form(...)],
+            category_id: Annotated[int, Form(...)],
+            description: Annotated[Optional[str], Form()] = None,
+            specs: Annotated[Optional[str], Form()] = None,
+    ) -> "ProductCreate":
+        specs_dict = None
+        if specs:
+            # Сначала пробуем JSON формат
+            try:
+                specs_dict = json.loads(specs)
+            except json.JSONDecodeError:
+                pass
+            # пробуем простой формат key=value
+            if specs_dict is None:
+                specs_dict = {}
+                # Пробуем сначала по переносам строк
+                lines = specs.strip().split('\n')
+                if len(lines) <= 1:
+                    # Если всего одна строка, разбиваем по двойным пробелам
+                    lines = [s.strip() for s in specs.strip().split('  ') if s.strip()]
+                for item in lines:
+                    if '=' in item:
+                        key, value = item.split('=', 1)
+                        specs_dict[key.strip()] = value.strip()
+            if not isinstance(specs_dict, dict):
+                raise ValueError("specs must be a JSON object or key=value lines")
+        return cls(
+            name=name,
+            description=description,
+            price=price,
+            stock=stock,
+            category_id=category_id,
+            specs=specs_dict,
+        )
 
 class Product(BaseModel):
     """
@@ -52,6 +93,7 @@ class Product(BaseModel):
     seller_id: int = Field(description="ID продавца")
     is_active: bool = Field(description="Активность товара")
     rating: Optional[float] = Field(default=0.0, description="Средний рейтинг")
+    specs: dict | None = Field(default=None, description="Характеристики товара")
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -204,3 +246,18 @@ class OrderList(BaseModel):
     page_size: int = Field(ge=1, description="Размер страницы")
 
     model_config = ConfigDict(from_attributes=True)
+
+class OrderCheckoutResponse(BaseModel):
+    """Ответ после создания заказа и инициации оплаты."""
+    order: Order = Field(description="Созданный заказ")
+    confirmation_url: str | None = Field(None, description="URL для перенаправления на оплату")
+    payment_id: str | None = Field(None, description="ID платежа в платёжной системе")
+
+    model_config = ConfigDict(from_attributes=True)
+
+class OrderStatusResponse(BaseModel):
+    """Ответ с текущим статусом заказа."""
+    order_id: int = Field(description="ID заказа")
+    status: str = Field(description="Текущий статус заказа")
+    paid_at: datetime | None = Field(None, description="Дата и время оплаты, null если не оплачен")
+    message: str = Field(description="Сообщение для пользователя в зависимости от статуса")

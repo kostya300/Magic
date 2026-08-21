@@ -1,5 +1,6 @@
 // frontend/src/components/componentsforgeneralpage_js/Categories.js
 import '../../styles/components/generalpagecss/Categories.css';
+import { useNavigate } from 'react-router-dom';
 
 const categoryIcons = {
   'Ноутбуки': '💻',
@@ -22,11 +23,18 @@ function getIcon(name) {
 }
 
 function Categories({ categories, activeId, onSelect }) {
+  const navigate = useNavigate();
+
+  const handleClick = (category) => {
+    onSelect(activeId === category.id ? null : category.id);
+    navigate(`/products/category/${category.id}`);
+  };
+
   return (
     <section>
       <div className="general-section-header">
         <h2 className="general-section-title">Категории</h2>
-        <button className="general-section-link">
+        <button className="general-section-link" onClick={() => navigate('/categories')}>
           Все категории <span>→</span>
         </button>
       </div>
@@ -35,11 +43,12 @@ function Categories({ categories, activeId, onSelect }) {
           <button
             key={cat.id}
             className={`general-cat-btn${activeId === cat.id ? ' active' : ''}`}
-            onClick={() => onSelect(activeId === cat.id ? null : cat.id)}
+            onClick={() => handleClick(cat)}
           >
             <span className="general-cat-icon">{getIcon(cat.name)}</span>
             <span className="general-cat-name">{cat.name}</span>
           </button>
+            
         ))}
       </div>
     </section>

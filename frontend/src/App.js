@@ -35,6 +35,7 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [featuredProduct, setFeaturedProduct] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -111,6 +112,14 @@ function App() {
 
         setPopularProducts(uniquePopular.slice(0, 8));
         setNewArrivals(uniqueNewArr);
+
+        // Featured product - random product for Hero
+        const featRes = await fetch('/products/?page_size=1');
+        const featData = await featRes.json();
+        if (featData.items?.length > 0) {
+          const randomItem = featData.items[Math.floor(Math.random() * featData.items.length)];
+          setFeaturedProduct({ ...randomItem, inStock: randomItem.stock > 0 });
+        }
       } catch (err) {
         console.error('Error fetching data:', err);
       } finally {
@@ -137,7 +146,7 @@ function App() {
       <Header />
       <main className="general-main">
         <div className="general-container">
-          <Hero />
+          <Hero featuredProduct={featuredProduct} onOpenProduct={onOpenProduct} />
           <TrustBadges />
           <Categories
             categories={categories}

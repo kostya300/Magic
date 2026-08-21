@@ -1,8 +1,10 @@
 from fastapi import FastAPI
-from app.routers import categories, products, users, reviews,cart,orders
+from app.routers import categories, products, users, reviews,cart,orders,payments
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI(
     title="FastAPI Интернет-магазин",
@@ -16,6 +18,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
+        "http://192.168.0.100:8000",
+        "http://192.168.0.100:3000",
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -28,8 +32,9 @@ app.include_router(cart.router)
 app.include_router(orders.router)
 app.include_router(users.router)
 app.include_router(reviews.router)
+app.include_router(payments.router)
 
-
+app.mount("/media", StaticFiles(directory="media"), name="media")
 # Заголовки безопасности
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -41,9 +46,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "default-src 'self'; "
                 "script-src 'self'; "
                 "style-src 'self' 'unsafe-inline'; "
-                "img-src 'self' data: https: http://localhost:8000 http://127.0.0.1:8000; "
+                "img-src 'self' data: https: http://localhost:8000 http://127.0.0.1:8000 http://localhost:8000 http://127.0.0.1:3000 http://192.168.0.100:3000 http://192.168.0.100:8000; "
                 "font-src 'self'; "
-                "connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 http://localhost:8000 http://127.0.0.1:8000; "
+                "connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 http://localhost:8000 http://127.0.0.1:8000 http://192.168.0.100:3000 http://192.168.0.100:8000; "
+                "upgrade-insecure-requests;"
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
                 "form-action 'self'"

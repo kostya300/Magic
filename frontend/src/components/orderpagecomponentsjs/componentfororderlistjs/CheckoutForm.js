@@ -23,7 +23,12 @@ function CheckoutForm({ totalAmount, fmtPrice, onCheckout, onCancel }) {
 
     setLoading(true);
     try {
-      await onCheckout({ payment, delivery, address, pickupPoint });
+      if (payment === 'yookassa') {
+        // Для ЮKасса просто создаём заказ и перенаправляем на оплату
+        await onCheckout({ payment, delivery, address, pickupPoint });
+      } else {
+        await onCheckout({ payment, delivery, address, pickupPoint });
+      }
     } finally {
       setLoading(false);
     }

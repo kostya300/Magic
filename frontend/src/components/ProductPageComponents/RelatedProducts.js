@@ -34,7 +34,7 @@ export default function RelatedProducts({ products, onOpenProduct }) {
             onClick={() => onOpenProduct?.(p)}
           >
             <div className="rp-card-img">
-              <img src={p.image} alt={p.imageAlt} />
+              <img src={p.image_url} alt={p.name} />
               {p.discount > 0 && (
                 <span className="rp-card-discount">−{p.discount}%</span>
               )}

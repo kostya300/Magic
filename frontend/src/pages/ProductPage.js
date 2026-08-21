@@ -40,7 +40,16 @@ function ProductPage() {
                     categoriesRes.json()
                 ]);
 
-                setProduct({ ...productData, inStock: productData.stock > 0 });
+                // Convert specs object to array format for Tabs component
+                let specsArray = [];
+                if (productData.specs && typeof productData.specs === 'object') {
+                    specsArray = Object.entries(productData.specs).map(([key, value]) => ({
+                        label: key,
+                        value: value
+                    }));
+                }
+
+                setProduct({ ...productData, inStock: productData.stock > 0, specs: specsArray });
 
                 // Load related products (same category)
                 if (productData.category_id) {

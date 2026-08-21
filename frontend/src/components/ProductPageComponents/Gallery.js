@@ -12,7 +12,9 @@ export default function Gallery({ product }) {
   return (
     <div className="product-gallery">
       <div className="product-main-img">
-        <img src={gallery[activeImg]} alt={product?.imageAlt} />
+
+        <img src={product.image_url || 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=300&fit=crop&auto=format'}
+          alt={product.name} />
 
         <div className="product-img-badges">
           {product?.badge && (

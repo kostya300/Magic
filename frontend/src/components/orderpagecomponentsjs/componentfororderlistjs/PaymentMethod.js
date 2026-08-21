@@ -3,7 +3,7 @@ import '../../../styles/components/orderpagecomponentsstyles/componentfororderli
 
 const paymentMethods = [
   { id: 'cash', label: 'Наличными при получении', icon: '💵' },
-  { id: 'card', label: 'Безналичной оплатой', icon: '💳' },
+  { id: 'yookassa', label: 'ЮKassa', icon: '💳' },
 ];
 
 function PaymentMethod({ selected, onChange }) {

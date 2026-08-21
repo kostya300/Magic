@@ -30,7 +30,7 @@ export default function CartPage() {
     }
   };
 
-  // 👇 ВЫЗЫВАЕМ loadCart при монтировании компонента
+  
   useEffect(() => {
     if (isAuthenticated()) {
       loadCart();
@@ -73,7 +73,20 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = () => alert('Скоро будет доступно');
+  const handleCheckout = async () => {
+    try {
+      const res = await authFetch('/orders/checkout', { method: 'POST' });
+      if (res.ok) {
+        navigate('/profile');
+      } else {
+        const errorData = await res.json();
+        alert(errorData.detail || 'Ошибка оформления заказа');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Ошибка подключения к серверу');
+    }
+  };
 
   // 👇 Проверяем авторизацию ДО загрузки
   if (!isAuthenticated()) {

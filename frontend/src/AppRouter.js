@@ -4,6 +4,8 @@ import App from './App';
 import ProductPage from './pages/ProductPage';
 import CartPage from './pages/Cart';
 import ProfilePage from './pages/ProfilePage';
+import CategoriesPage from './pages/CategoriesPage';
+import ProductCategoriesPage from './pages/ProductCategoriesPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -17,6 +19,8 @@ function AppRouter() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/products/category/:categoryId" element={<ProductCategoriesPage />} />
       </Routes>
     </Router>
   );

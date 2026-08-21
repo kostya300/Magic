@@ -2,14 +2,17 @@
 import '../../styles/components/generalpagecss/Hero.css';
 import { Flame, ArrowRight } from 'lucide-react';
 
-function Hero() {
+function Hero({ featuredProduct, onOpenProduct }) {
+  const heroImage = featuredProduct?.image_url || 'https://gsm-store.ru/upload/medialibrary/857/85732cb2be9ce11c88e73ffefedcb5d2.jpg';
+  const name = featuredProduct?.name || 'Спецпредложение';
+  const price = featuredProduct ? `₽ ${Number(featuredProduct.price).toLocaleString('ru')}` : '₽ 249 990';
   return (
     <section className="general-hero">
       {/* Main hero */}
       <div className="general-hero-main">
         <img
-          src="https://images.unsplash.com/photo-1562907550-096d3bf9b25c?w=900&h=500&fit=crop&auto=format"
-          alt="Ноутбук"
+          src={heroImage}
+          alt="Спецпредложение"
           className="general-hero-img"
         />
         <div className="general-hero-overlay" />
@@ -19,16 +22,29 @@ function Hero() {
             Горячее предложение
           </span>
           <h1 className="general-hero-title">
-            MacBook Pro 16"<br />M3 Pro Chip
+            {name}
           </h1>
           <p className="general-hero-sub">
-            Новое поколение производительности. Скидка 14% только до конца недели.
+            Отличный выбор по выгодной цене
           </p>
           <div className="general-hero-actions">
-            <button className="general-hero-buy">
-              Купить за ₽ 249 990 <ArrowRight size={14} />
+            <button 
+              className="general-hero-buy"
+              onClick={() => onOpenProduct && onOpenProduct(featuredProduct)}
+              disabled={!featuredProduct}
+            >
+              Купить за {price} <ArrowRight size={14} />
             </button>
-            <a href="#" className="general-hero-detail">Подробнее</a>
+            <a 
+              href="#" 
+              className="general-hero-detail"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenProduct && onOpenProduct(featuredProduct);
+              }}
+            >
+              Подробнее
+            </a>
           </div>
         </div>
       </div>

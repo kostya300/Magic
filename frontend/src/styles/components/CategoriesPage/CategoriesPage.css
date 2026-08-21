@@ -1,0 +1,24 @@
+/* CategoriesPage */
+.categories-page {
+  padding: 40px 0;
+}
+
+.categories-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 32px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.categories-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 60px 0;
+}
