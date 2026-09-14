@@ -107,11 +107,7 @@ FASTAPI/
 ## 🧪 Тестирование
 
 ```bash
-# Запуск тестов
-pytest
 
-# Запуск через Swagger UI
-# http://localhost:8000/docs
 ```
 
 ## 🔒 Безопасность
