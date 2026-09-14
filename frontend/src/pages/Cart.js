@@ -77,9 +77,18 @@ export default function CartPage() {
     try {
       const res = await authFetch('/orders/checkout', { method: 'POST' });
       if (res.ok) {
+        alert('Заказ успешно оформлен!');
         navigate('/profile');
       } else {
-        const errorData = await res.json();
+        const text = await res.text();
+        console.error('[Checkout] Server error:', res.status, text);
+        let errorData;
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          alert('Ошибка: ' + text);
+          return;
+        }
         alert(errorData.detail || 'Ошибка оформления заказа');
       }
     } catch (err) {

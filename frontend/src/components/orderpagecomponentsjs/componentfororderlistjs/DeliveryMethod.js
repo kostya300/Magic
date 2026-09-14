@@ -15,13 +15,14 @@ function DeliveryMethod({ selected, onChange }) {
           <label
             key={method.id}
             className={`delivery-method-option ${selected === method.id ? 'active' : ''}`}
+            onClick={() => onChange(method.id)}
           >
             <input
               type="radio"
               name="delivery"
               value={method.id}
               checked={selected === method.id}
-              onChange={() => onChange(method.id)}
+              readOnly
             />
             <span className="delivery-method-icon">{method.icon}</span>
             <span className="delivery-method-label-text">{method.label}</span>

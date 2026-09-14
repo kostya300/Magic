@@ -85,10 +85,12 @@ async def yookassa_webhook(
             order.status = "paid"
             order.paid_at = datetime.now(timezone.utc)
             order.payment_id = payment.id
+            print(f"[WEBHOOK] Order {order.id} marked as paid")
         await db.commit()
         return {"status": "ok"}
     elif payment.status == "canceled":
-        order.status = "canceled"
+        order.status = "cancelled"
+        print(f"[WEBHOOK] Order {order.id} payment cancelled")
 
     await db.commit()
     return {"status": "ok"}

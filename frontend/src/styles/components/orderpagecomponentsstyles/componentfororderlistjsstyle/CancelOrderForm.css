@@ -1,0 +1,110 @@
+/* frontend/src/styles/components/orderpagecomponentsstyles/componentfororderlistjsstyle/CancelOrderForm.css */
+.cancel-order-form {
+  padding: 16px 0;
+}
+
+.cancel-form-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.cancel-form-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+.cancel-reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cancel-reason-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancel-reason-item:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancel-reason-item input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #ef4444;
+}
+
+.cancel-other-field {
+  margin-bottom: 16px;
+}
+
+.cancel-other-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.cancel-other-textarea:focus {
+  outline: none;
+  border-color: #ef4444;
+}
+
+.cancel-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-btn-cancel,
+.cancel-btn-confirm {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancel-btn-cancel {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+}
+
+.cancel-btn-cancel:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancel-btn-confirm {
+  border: 1px solid #ef4444;
+  background: #ef4444;
+  color: #fff;
+}
+
+.cancel-btn-confirm:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.cancel-btn-cancel:disabled,
+.cancel-btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

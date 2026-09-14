@@ -1,4 +1,3 @@
-import os
 from decimal import Decimal
 from typing import Any
 from uuid import uuid4
@@ -11,22 +10,6 @@ from app.config import (
     YOOKASSA_SHOP_ID,
 )
 
-USE_MOCK_PAYMENTS = os.getenv("MOCK_PAYMENTS", "false").lower() == "true"
-
-YOOKASSA_API_URL = os.getenv(
-    "YOOKASSA_API_URL",
-    "https://api.sandbox.yookassa.ru/v3/payments"
-)
-
-
-def _mock_yookassa_payment(order_id: int, amount: Decimal) -> dict[str, Any]:
-    """Mock-платёж для разработки без доступа к ЮKassa."""
-    return {
-        "id": f"mock_payment_{uuid4().hex[:10]}",
-        "status": "pending",
-        "confirmation_url": f"http://localhost:3000/checkout/{order_id}",
-    }
-
 
 async def create_yookassa_payment(
     *,
@@ -36,11 +19,6 @@ async def create_yookassa_payment(
     description: str,
 ) -> dict[str, Any]:
     """Создаёт платёж в ЮKassa."""
-
-    # Mock-режим для разработки
-    if USE_MOCK_PAYMENTS:
-        print(f"[MOCK PAYMENT] order_id={order_id}, amount={amount}")
-        return _mock_yookassa_payment(order_id=order_id, amount=amount)
 
     if not YOOKASSA_SHOP_ID or not YOOKASSA_SECRET_KEY:
         raise RuntimeError("Задайте YOOKASSA_SHOP_ID и YOOKASSA_SECRET_KEY в .env")
@@ -74,24 +52,30 @@ async def create_yookassa_payment(
         },
     }
 
-    headers = {
-        "Content-Type": "application/json",
-        "Idempotence-Key": str(uuid4()),
-    }
-    # Basic Auth: логин = SHOP_ID:SECRET_KEY
     import base64
     credentials = f"{YOOKASSA_SHOP_ID}:{YOOKASSA_SECRET_KEY}"
     auth_token = base64.b64encode(credentials.encode()).decode()
-    headers["Authorization"] = f"Basic {auth_token}"
 
-    with Client(timeout=Timeout(connect=10.0, read=30.0, write=30.0, pool=10.0)) as client:
-        resp = client.post(YOOKASSA_API_URL, json=payload, headers=headers)
+    headers = {
+        "Content-Type": "application/json",
+        "Idempotence-Key": str(uuid4()),
+        "Authorization": f"Basic {auth_token}",
+    }
 
-        if resp.status_code not in (200, 201):
-            print(f"YooKassa error: {resp.status_code} - {resp.text}")
-            raise RuntimeError(f"ЮKassa API error: {resp.status_code}")
+    YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
 
-        result = resp.json()
+    try:
+        with Client(timeout=Timeout(connect=10.0, read=30.0, write=30.0, pool=10.0)) as client:
+            resp = client.post(YOOKASSA_API_URL, json=payload, headers=headers)
+    except Exception as exc:
+        print(f"YooKassa connection error: {exc}")
+        raise RuntimeError(f"Не удалось подключиться к ЮKassa: {exc}")
+
+    if resp.status_code not in (200, 201):
+        print(f"YooKassa error: {resp.status_code} - {resp.text}")
+        raise RuntimeError(f"ЮKassa API error: {resp.status_code}")
+
+    result = resp.json()
 
     return {
         "id": result["id"],

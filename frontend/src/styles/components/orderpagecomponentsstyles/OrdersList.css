@@ -188,3 +188,32 @@
   background: #e5e7eb;
   color: #111827;
 }
+
+.order-cancelled-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.orders-home-btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.15s ease;
+  margin-bottom: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.orders-home-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}

@@ -232,6 +232,7 @@ class Order(BaseModel):
     id: int = Field(..., description="ID заказа")
     user_id: int = Field(..., description="ID пользователя")
     status: str = Field(..., description="Текущий статус заказа")
+    cancellation_reason: str | None = Field(None, description="Причина отмены")
     total_amount: Decimal = Field(..., ge=0, description="Общая стоимость")
     created_at: datetime = Field(..., description="Когда заказ был создан")
     updated_at: datetime = Field(..., description="Когда последний раз обновлялся")
@@ -248,10 +249,8 @@ class OrderList(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class OrderCheckoutResponse(BaseModel):
-    """Ответ после создания заказа и инициации оплаты."""
+    """Ответ после создания заказа."""
     order: Order = Field(description="Созданный заказ")
-    confirmation_url: str | None = Field(None, description="URL для перенаправления на оплату")
-    payment_id: str | None = Field(None, description="ID платежа в платёжной системе")
 
     model_config = ConfigDict(from_attributes=True)
 

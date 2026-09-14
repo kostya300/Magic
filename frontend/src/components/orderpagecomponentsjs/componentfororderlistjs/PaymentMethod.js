@@ -15,13 +15,14 @@ function PaymentMethod({ selected, onChange }) {
           <label
             key={method.id}
             className={`payment-method-option ${selected === method.id ? 'active' : ''}`}
+            onClick={() => onChange(method.id)}
           >
             <input
               type="radio"
               name="payment"
               value={method.id}
               checked={selected === method.id}
-              onChange={() => onChange(method.id)}
+              readOnly
             />
             <span className="payment-method-icon">{method.icon}</span>
             <span className="payment-method-label-text">{method.label}</span>

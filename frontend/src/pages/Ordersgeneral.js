@@ -73,7 +73,7 @@ function Ordersgeneral() {
           <p>У вас пока нет заказов</p>
         </div>
       ) : (
-        <OrdersList orders={orders} />
+        <OrdersList orders={orders} onUpdate={() => loadOrders(page)} />
       )}
 
       {total > pageSize && (

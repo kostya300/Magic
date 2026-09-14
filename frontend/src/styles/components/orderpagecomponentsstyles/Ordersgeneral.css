@@ -25,7 +25,27 @@
 }
 
 .orders-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
+}
+
+.orders-back-btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.orders-back-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .orders-title {

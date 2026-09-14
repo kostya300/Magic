@@ -1,13 +1,15 @@
-// frontend/src/components/orderpagecomponentsjs/OrdersList.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authFetch } from '../../utils/authUtils';
-import OrderDeleteButton from './componentfororderlistjs/OrderDeleteButton';
+import CancelOrderForm from './componentfororderlistjs/CancelOrderForm';
 import CheckoutForm from './componentfororderlistjs/CheckoutForm';
 import PaymentConfirmed from './componentfororderlistjs/PaymentConfirmed';
 import '../../styles/components/orderpagecomponentsstyles/OrdersList.css';
 
-function OrdersList({ orders }) {
+function OrdersList({ orders, onUpdate }) {
+  const navigate = useNavigate();
   const [checkoutOrder, setCheckoutOrder] = useState(null);
+  const [cancellingOrder, setCancellingOrder] = useState(null);
 
   const fmtPrice = (price) => `₽ ${Number(price).toLocaleString('ru')}`;
   const getStatusLabel = (status) => {
@@ -17,7 +19,8 @@ function OrdersList({ orders }) {
       confirmed: 'Подтверждён', 
       shipped: 'Отправлен', 
       delivered: 'Доставлен', 
-      cancelled: 'Отменён' 
+      cancelled: 'Отменён',
+      paid: 'Оплачен'
     };
     return labels[status] || status;
   };
@@ -28,57 +31,64 @@ function OrdersList({ orders }) {
       confirmed: '#3b82f6', 
       shipped: '#8b5cf6', 
       delivered: '#10b981', 
-      cancelled: '#ef4444' 
+      cancelled: '#ef4444',
+      paid: '#10b981'
     };
     return colors[status] || '#6b7280';
   };
   const [confirmedOrder, setConfirmedOrder] = useState(null);
-  const [deleteOrderId, setDeleteOrderId] = useState(null);
 
-  const handleDelete = async (orderId) => {
-    setDeleteOrderId(orderId);
-    try {
-      const res = await authFetch(`/orders/${orderId}`, { method: 'DELETE' });
-      if (res.status === 204) {
-        window.location.reload();
+  // Обновляем список заказов при возврате из YooKassa
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const hasAwaitingPayment = orders.some(o => o.status === 'awaiting_payment');
+      if (hasAwaitingPayment) {
+        try {
+          const res = await authFetch('/orders/?page=1&page_size=100');
+          if (res.ok) {
+            const data = await res.json();
+            const hasPaidOrders = data.items?.some(o => o.status === 'paid');
+            if (hasPaidOrders) {
+              window.location.reload();
+            }
+          }
+        } catch (err) {
+          console.error('Error checking order status:', err);
+        }
       }
-    } catch (err) {
-      console.error('Delete error:', err);
-    }
-  };
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [orders]);
 
   const handleCheckout = async (data) => {
     try {
-      if (data.payment === 'yookassa') {
-        // Для ЮKassa создаём платёж и перенаправляем
-        const res = await authFetch(`/orders/${checkoutOrder}/pay`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      console.log('[Checkout] Order:', checkoutOrder);
+      console.log('[Checkout] Payment method:', data.payment);
+      
+      const res = await authFetch(`/orders/${checkoutOrder}/pay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('[Checkout] Response status:', res.status);
+      
+      if (res.ok) {
+        const result = await res.json();
+        console.log('[Checkout] Payment result:', result);
         
-        if (res.ok) {
-          const result = await res.json();
-          // Перенаправляем на страницу оплаты ЮKassa
+        if (result.payment_url) {
+          console.log('[Checkout] Redirecting to:', result.payment_url);
           window.location.href = result.payment_url;
         } else {
-          const errorData = await res.json().catch(() => ({}));
-          alert(errorData.detail || 'Ошибка при создании платежа');
+          alert('Ошибка: отсутствует URL для оплаты');
         }
       } else {
-        // Обычный заказ без оплаты
-        const res = await authFetch('/orders/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (res.ok) {
-          const order = await res.json();
-          setConfirmedOrder(order);
-          setCheckoutOrder(null);
-        }
+        const errorData = await res.json().catch(() => ({}));
+        console.error('[Checkout] Error:', errorData);
+        alert(errorData.detail || 'Ошибка при создании платежа');
       }
     } catch (err) {
       console.error('Checkout error:', err);
@@ -91,13 +101,35 @@ function OrdersList({ orders }) {
     setConfirmedOrder(null);
     window.location.reload();
   };
+  const handleGoHome = () => navigate('/');
 
   return (
     <>
       <div className="orders-list">
+        <button className="orders-home-btn" onClick={handleGoHome}>
+          ← На главную
+        </button>
         {orders.map((order) => (
           <div key={order.id} className="order-card">
-            <OrderDeleteButton onConfirm={() => handleDelete(order.id)} />
+            {order.status !== 'cancelled' && cancellingOrder === order.id && (
+              <CancelOrderForm
+                orderId={order.id}
+                onConfirm={() => setCancellingOrder(null)}
+                onCancel={() => setCancellingOrder(null)}
+                onUpdate={onUpdate}
+              />
+            )}
+            {order.status !== 'cancelled' && cancellingOrder !== order.id && (
+              <button
+                className="order-cancel-btn"
+                onClick={() => setCancellingOrder(order.id)}
+              >
+                Отменить заказ
+              </button>
+            )}
+            {order.status === 'cancelled' && (
+              <span className="order-cancelled-badge">Отменён</span>
+            )}
 
             <div className="order-card-header">
               <div className="order-card-info">
@@ -147,10 +179,10 @@ function OrdersList({ orders }) {
                 className="order-checkout-btn"
                 onClick={() => setCheckoutOrder(order.id)}
               >
-                Оформить заказ
+                Перейти к оплате
               </button>
             )}
-            {order.status === 'awaiting_payment' && (
+            {order.status === 'awaiting_payment' && !checkoutOrder && (
               <div className="order-awaiting-payment">
                 <span>⏳ Ожидает оплаты</span>
               </div>
@@ -163,7 +195,7 @@ function OrdersList({ orders }) {
         <div className="orders-checkout-overlay">
           <div className="orders-checkout-container">
             <div className="orders-checkout-header">
-              <h3>Оформление заказа #{checkoutOrder}</h3>
+              <h3>Оплата заказа #{checkoutOrder}</h3>
               <button className="orders-checkout-close" onClick={handleCancelCheckout}>
                 ×
               </button>

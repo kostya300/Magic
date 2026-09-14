@@ -43,7 +43,11 @@ function ProfileSidebar({ activeSection, onSectionChange, isOpen, onToggle }) {
                 <button
                   className={`profile-nav-btn${activeSection === item.id ? ' active' : ''}`}
                   onClick={() => {
-                    onSectionChange(item.id);
+                    if (item.id === 'orders') {
+                      navigate('/orders');
+                    } else {
+                      onSectionChange(item.id);
+                    }
                     onToggle();
                   }}
                 >

@@ -1,34 +1,28 @@
-// frontend/src/components/orderpagecomponentsjs/componentfororderlistjs/CheckoutForm.js
 import { useState } from 'react';
 import '../../../styles/components/orderpagecomponentsstyles/componentfororderlistjsstyle/CheckoutForm.css';
 import PaymentMethod from './PaymentMethod';
 import DeliveryMethod from './DeliveryMethod';
 
 function CheckoutForm({ totalAmount, fmtPrice, onCheckout, onCancel }) {
-  const [payment, setPayment] = useState('cash');
+  const [payment, setPayment] = useState('yookassa');
   const [delivery, setDelivery] = useState('address');
   const [address, setAddress] = useState('');
   const [pickupPoint, setPickupPoint] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async () => {
-    if (payment === 'cash' && delivery === 'address' && !address.trim()) {
+  const handleSubmit = async () => {
+    if (delivery === 'address' && !address.trim()) {
       alert('Введите адрес доставки');
       return;
     }
-    if (payment === 'cash' && delivery === 'pickup' && !pickupPoint.trim()) {
+    if (delivery === 'pickup' && !pickupPoint.trim()) {
       alert('Укажите пункт выдачи');
       return;
     }
 
     setLoading(true);
     try {
-      if (payment === 'yookassa') {
-        // Для ЮKасса просто создаём заказ и перенаправляем на оплату
-        await onCheckout({ payment, delivery, address, pickupPoint });
-      } else {
-        await onCheckout({ payment, delivery, address, pickupPoint });
-      }
+      await onCheckout({ payment, delivery, address, pickupPoint });
     } finally {
       setLoading(false);
     }
@@ -81,7 +75,7 @@ function CheckoutForm({ totalAmount, fmtPrice, onCheckout, onCancel }) {
         <button
           type="button"
           className={`checkout-btn-primary ${payment === 'cash' ? 'checkout-btn-cash' : ''}`}
-          onClick={handleCheckout}
+          onClick={handleSubmit}
           disabled={loading}
         >
           {loading ? 'Оформляем...' : (payment === 'cash' ? 'Оплатить при получении' : 'Перейти к оплате')}

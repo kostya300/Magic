@@ -14,6 +14,7 @@ class Order(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
+    cancellation_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
     payment_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
     total_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
