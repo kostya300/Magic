@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Ordersgeneral from './pages/Ordersgeneral';
 import ProfileUser from './pages/ProfileUser';
+import SearchResults from './pages/SearchResults';
 
 function AppRouter() {
     return (
@@ -27,6 +28,7 @@ function AppRouter() {
                 <Route path="/categories" element={<CategoriesPage/>}/>
                 <Route path="/products/category/:categoryId" element={<ProductCategoriesPage/>}/>
                 <Route path="/checkout/:orderId" element={<ProfilePage/>}/>
+                <Route path="/search" element={<SearchResults/>}/>
             </Routes>
         </Router>
     );

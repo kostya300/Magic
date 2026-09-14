@@ -7,10 +7,23 @@ import AuthLink from '../logcomp/AuthLink';
 import { isAuthenticated } from '../../utils/authUtils';
 const navLinks = ['Каталог', 'Акции', 'Бренды', 'Новинки', 'Контакты'];
 
-function Header({ cartCount = 0, categories = [] }) {
+function Header({ cartCount = 0, categories = [], onSearch }) {
   const navigate = useNavigate();
   const [mobileMenu, setMobileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <header className="general-header">
@@ -46,6 +59,7 @@ function Header({ cartCount = 0, categories = [] }) {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Поиск товаров, брендов, категорий..."
             />
             {searchQuery && (
@@ -54,6 +68,9 @@ function Header({ cartCount = 0, categories = [] }) {
               </button>
             )}
           </div>
+          <button className="general-search-btn" onClick={handleSearch}>
+            <Search size={16} />
+          </button>
         </div>
 
         {/* Actions */}
