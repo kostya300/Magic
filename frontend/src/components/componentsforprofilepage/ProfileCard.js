@@ -28,7 +28,7 @@ function ProfileCard() {
             </div>
           ))}
         </div>
-        <button className="profile-edit-btn">Редактировать</button>
+
       </div>
     </div>
   );

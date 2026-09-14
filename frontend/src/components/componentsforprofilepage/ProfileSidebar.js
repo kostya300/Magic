@@ -8,9 +8,6 @@ const navItems = [
   { id: 'profile', icon: '👤', label: 'Профиль' },
   { id: 'orders', icon: '📦', label: 'Заказы' },
   { id: 'messages', icon: '💬', label: 'Сообщения', badge: 3 },
-  { id: 'security', icon: '🔒', label: 'Безопасность' },
-  { id: 'billing', icon: '💳', label: 'Платежи' },
-  { id: 'settings', icon: '⚙️', label: 'Настройки' },
 ];
 
 function ProfileSidebar({ activeSection, onSectionChange, isOpen, onToggle }) {
@@ -45,6 +42,8 @@ function ProfileSidebar({ activeSection, onSectionChange, isOpen, onToggle }) {
                   onClick={() => {
                     if (item.id === 'orders') {
                       navigate('/orders');
+                    } else if (item.id === 'profile') {
+                      navigate('/profile/user');
                     } else {
                       onSectionChange(item.id);
                     }
