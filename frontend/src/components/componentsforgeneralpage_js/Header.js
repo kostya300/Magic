@@ -69,7 +69,7 @@ function Header({ cartCount = 0, categories = [] }) {
               <span className="general-header-badge">{cartCount}</span>
             )}
           </button>
-          <button className="general-header-btn" onClick={() => navigate('/profile')}>
+          <button className="general-header-btn" onClick={() => navigate(isAuthenticated() ? '/profile' : '/login')}>
             <User size={16} />
           </button>
           <button
