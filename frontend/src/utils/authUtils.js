@@ -55,9 +55,7 @@ export const authFetch = async (url, options = {}) => {
         };
     }
 
-    console.log('[authFetch] Request to:', url);
     let response = await fetch(url, options);
-    console.log('[authFetch] Response status:', response.status);
 
     // Если 401 — пробуем обновить токен
     if (response.status === 401) {

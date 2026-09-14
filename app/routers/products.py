@@ -126,7 +126,7 @@ async def get_all_products(
         page_size: int = Query(10, ge=1, le=100),
         category_id: int | None = Query(
             None, description="ID категории для фильтрации"),
-        search: str | None = Query(None, min_length=1, description="Поиск по названию товара"),
+        search: str | None = Query(None, min_length=1, max_length=100, description="Поиск по названию товара"),
         min_price: float | None = Query(
             None, ge=0, description="Минимальная цена товара"),
         max_price: float | None = Query(

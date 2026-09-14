@@ -1,5 +1,5 @@
 # app/schemas.py
-from pydantic import BaseModel, Field, ConfigDict,EmailStr
+from pydantic import BaseModel, Field, ConfigDict, EmailStr, validator
 from decimal import Decimal
 from typing import Optional, Annotated,Dict,Any
 from datetime import datetime
@@ -109,8 +109,18 @@ class ProductList(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 class UserCreate(BaseModel):
     email: EmailStr = Field(description="Email пользователя")
-    password: str = Field(min_length=8, description="Пароль (минимум 8 символов)")
+    password: str = Field(min_length=8, max_length=128, description="Пароль (минимум 8 символов)")
     role: str = Field(default="buyer", pattern="^(buyer|seller|admin)$", description="Роль: 'buyer', 'seller' или 'admin'")
+
+    @validator('password')
+    def password_strength(cls, v):
+        if not any(c.isupper() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну заглавную букву')
+        if not any(c.islower() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну строчную букву')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну цифру')
+        return v
 
 
 class UserUpdate(BaseModel):

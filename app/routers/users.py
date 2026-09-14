@@ -19,6 +19,7 @@ from app.auth import (
     create_access_token,
     create_refresh_token,
     get_current_user,
+    get_current_seller,
 )
 
 import logging
@@ -36,14 +37,18 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 # Специфичные роуты ДО параметризованных!
 @router.get("/", response_model=list[UserSchema])
-async def get_users(db: AsyncSession = Depends(get_async_db)):
+async def get_users(db: AsyncSession = Depends(get_async_db),
+                    current_user: UserModel = Depends(get_current_seller)):
+    """Только для авторизованных пользователей (seller/admin)"""
     result = await db.execute(select(UserModel))
     users = result.scalars().all()
     return users
 
 
 @router.get("/email/{email}", response_model=UserSchema)
-async def get_user_by_email(email: str, db: AsyncSession = Depends(get_async_db)):
+async def get_user_by_email(email: str, db: AsyncSession = Depends(get_async_db),
+                            current_user: UserModel = Depends(get_current_user)):
+    """Только для авторизованных пользователей"""
     result = await db.execute(select(UserModel).where(UserModel.email == email))
     user = result.scalar_one_or_none()
     if not user:
@@ -225,7 +230,13 @@ async def update_me(
     if user_update.password:
         current_user.hashed_password = hash_password(user_update.password)
 
+    # Только admin может менять роль
     if user_update.role and user_update.role != current_user.role:
+        if current_user.role != "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only admin can change user role"
+            )
         current_user.role = user_update.role
 
     await db.commit()
