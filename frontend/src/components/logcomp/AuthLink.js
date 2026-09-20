@@ -6,9 +6,15 @@ export default function AuthLink({ className = '' }) {
   const navigate = useNavigate();
   const loggedIn = isAuthenticated();
 
-  const handleLogout = () => {
-    clearAuthTokens();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await fetch('/users/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      clearAuthTokens();
+      navigate('/');
+    }
   };
 
   if (loggedIn) {

@@ -41,3 +41,4 @@ class Product(Base):
         Index("ix_products_tsv_gin", "tsv", postgresql_using="gin"),
     )
     order_items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="product")
+    favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="product", cascade="all, delete-orphan")

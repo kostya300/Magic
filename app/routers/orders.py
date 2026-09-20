@@ -14,6 +14,8 @@ from app.models.orders import Order as OrderModel, OrderItem as OrderItemModel
 from app.models.users import User as UserModel
 from app.schemas import Order as OrderSchema, OrderList, OrderCheckoutResponse, OrderStatusResponse
 from app.payments import create_yookassa_payment
+from app.websocket import websocket_manager
+from loguru import logger
 
 router = APIRouter(
     prefix="/orders",
@@ -72,6 +74,41 @@ async def get_order_stats(
         pending_orders=pending_orders,
         completed_orders=completed_orders,
     )
+
+async def _send_order_status_update(db: AsyncSession, order_id: int, new_status: str):
+    """
+    Отправляет WebSocket уведомление о смене статуса заказа.
+    """
+    try:
+        order = await _load_order_with_items(db, order_id)
+        if order:
+            # Получаем данные пользователя
+            user_result = await db.execute(
+                select(UserModel).where(UserModel.id == order.user_id)
+            )
+            user = user_result.scalar_one_or_none()
+            if user:
+                status_messages = {
+                    "pending": "Заказ создан и ожидает обработки",
+                    "awaiting_payment": "Заказ ожидает оплаты",
+                    "paid": "Заказ оплачен!",
+                    "confirmed": "Заказ подтверждён",
+                    "shipped": "Заказ отправлен",
+                    "delivered": "Заказ доставлен",
+                    "cancelled": "Заказ отменён",
+                }
+                message = {
+                    "type": "order_status_update",
+                    "order_id": order_id,
+                    "status": new_status,
+                    "message": status_messages.get(new_status, f"Статус заказа: {new_status}"),
+                    "timestamp": datetime.now().isoformat(),
+                }
+                await websocket_manager.send_to_user(user.email, message)
+                logger.info(f"WebSocket уведомление отправлено: {user.email}, заказ #{order_id}, статус: {new_status}")
+    except Exception as e:
+        logger.error(f"Ошибка отправки WebSocket уведомления: {e}")
+
 
 async def _load_order_with_items(db: AsyncSession, order_id: int) -> OrderModel | None:
     result = await db.execute(
@@ -206,6 +243,9 @@ async def pay_order(
         order.status = "awaiting_payment"
         await db.commit()
         
+        # Отправляем уведомление о смене статуса
+        await _send_order_status_update(db, order.id, "awaiting_payment")
+        
         return {
             "payment_url": payment_info.get("confirmation_url"),
             "order_id": order.id,
@@ -323,6 +363,10 @@ async def cancel_order(
     order.cancellation_reason = reason
     await db.commit()
     await db.refresh(order)
+    
+    # Отправляем уведомление о отмене заказа
+    await _send_order_status_update(db, order.id, "cancelled")
+    
     return order
 
 

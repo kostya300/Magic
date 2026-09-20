@@ -21,18 +21,19 @@ from app.auth import (
     get_current_user,
     get_current_seller,
 )
-
+from app.cache import cache_invalidate_user
 from loguru import logger
 
 # Защита от брутфорса: email -> список timestamp неудачных попыток
 _brute_force_tracker: dict[str, list[float]] = defaultdict(list)
-MAX_FAILED_ATTEMPTS = 5  # Максимум неудачных попыток
-LOCKOUT_TIME = 300  # 5 минут блокировки (в секундах)
+MAX_FAILED_ATTEMPTS = 5
+LOCKOUT_TIME = 300
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
 # Специфичные роуты ДО параметризованных!
 @router.get("/", response_model=list[UserSchema])
 async def get_users(db: AsyncSession = Depends(get_async_db),
@@ -156,12 +157,6 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
     # Успешный вход — сбрасываем счётчик
     if identifier in _brute_force_tracker:
         del _brute_force_tracker[identifier]
@@ -252,7 +247,16 @@ async def update_me(
         current_user.role = user_update.role
 
     await db.commit()
+    await cache_invalidate_user(current_user.email)
     return current_user
+
+
+@router.post("/logout")
+async def logout(current_user: UserModel = Depends(get_current_user)):
+    """Выход из системы с инвалидацией кэша."""
+    await cache_invalidate_user(current_user.email)
+    logger.info(f"Выход пользователя: {current_user.email}")
+    return {"message": "Вы успешно вышли из системы"}
 
 
 # Параметризованные роуты ПОСЛЕ специфичных
@@ -295,4 +299,5 @@ async def delete_user(
 
     await db.execute(delete(UserModel).where(UserModel.id == user_id))
     await db.commit()
+    await cache_invalidate_user(user.email)
     return {"message": "User deleted"}

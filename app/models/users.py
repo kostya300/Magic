@@ -13,11 +13,11 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     role: Mapped[str] = mapped_column(String, default="buyer")  # "buyer" or "seller"
-    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")
-    products: Mapped[list["Product"]] = relationship(
-        "Product", back_populates="seller", cascade="all, delete-orphan"
-    )
     reviews: Mapped[list["Review"]] = relationship(
         "Review", back_populates="user", cascade="all, delete-orphan"
     )
+    products: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="seller", cascade="all, delete-orphan"
+    )
     orders: Mapped[list["Order"]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")

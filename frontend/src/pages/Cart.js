@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; // 👈 добавьте useEffect
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isAuthenticated, authFetch } from '../utils/authUtils';
 import { Header, Footer, Newsletter, Brands } from '../components/componentsforgeneralpage_js';
@@ -11,6 +11,7 @@ export default function CartPage() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [cartCount, setCartCount] = useState(0);
 
   const loadCart = async () => {
     try {
@@ -18,6 +19,7 @@ export default function CartPage() {
       if (res.ok) {
         const data = await res.json();
         setCart(data);
+        setCartCount(data.total_quantity || 0);
       } else {
         if (res.status === 401) setError('Сессия истекла');
         else setError('Не удалось загрузить корзину');
@@ -101,7 +103,7 @@ export default function CartPage() {
   if (!isAuthenticated()) {
     return (
       <div className="general-page">
-        <Header />
+        <Header cartCount={cartCount} />
         <div style={{ padding: 80, textAlign: 'center' }}>
           <p style={{ color: '#374151', marginBottom: 16 }}>Для просмотра корзины необходимо авторизоваться</p>
           <a href="/login" style={{ color: '#4f8ef7', fontWeight: 600 }}>Войти</a>
@@ -113,7 +115,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="general-page">
-        <Header />
+        <Header cartCount={cartCount} />
         <div style={{ padding: 80, textAlign: 'center', color: '#6b7280' }}>Загрузка корзины...</div>
       </div>
     );
@@ -122,7 +124,7 @@ export default function CartPage() {
   if (error) {
     return (
       <div className="general-page">
-        <Header />
+        <Header cartCount={cartCount} />
         <div style={{ padding: 80, textAlign: 'center', color: '#dc2626' }}>{error}</div>
       </div>
     );
@@ -131,7 +133,7 @@ export default function CartPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <div className="general-page">
-        <Header />
+        <Header cartCount={cartCount} />
         <CartEmpty onGoHome={() => navigate('/')} />
         <footer>
           <div className="general-container"><Brands /><Newsletter /></div>
@@ -143,7 +145,7 @@ export default function CartPage() {
 
   return (
     <div className="general-page">
-      <Header />
+      <Header cartCount={cartCount} />
       <div className="cart-page">
         <h1 className="cart-title">Корзина</h1>
         <div className="cart-layout">

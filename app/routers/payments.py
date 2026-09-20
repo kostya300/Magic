@@ -11,6 +11,9 @@ from yookassa.domain.notification import WebhookNotification
 
 from app.db_depends import get_async_db
 from app.models.orders import Order as OrderModel
+from app.models.users import User as UserModel
+from app.websocket import websocket_manager
+from loguru import logger
 
 router = APIRouter(
     prefix="/payments",
@@ -86,11 +89,50 @@ async def yookassa_webhook(
             order.paid_at = datetime.now(timezone.utc)
             order.payment_id = payment.id
             print(f"[WEBHOOK] Order {order.id} marked as paid")
+            
+            # Отправляем уведомление о оплате
+            try:
+                user_result = await db.execute(
+                    select(UserModel).where(UserModel.id == order.user_id)
+                )
+                user = user_result.scalar_one_or_none()
+                if user:
+                    message = {
+                        "type": "order_status_update",
+                        "order_id": order.id,
+                        "status": "paid",
+                        "message": f"Заказ #{order.id} оплачен!",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+                    await websocket_manager.send_to_user(user.email, message)
+                    logger.info(f"WebSocket уведомление отправлено: {user.email}, заказ #{order.id}")
+            except Exception as e:
+                logger.error(f"Ошибка отправки WebSocket уведомления: {e}")
+        
         await db.commit()
         return {"status": "ok"}
     elif payment.status == "canceled":
         order.status = "cancelled"
         print(f"[WEBHOOK] Order {order.id} payment cancelled")
-
-    await db.commit()
-    return {"status": "ok"}
+        
+        # Отправляем уведомление об отмене
+        try:
+            user_result = await db.execute(
+                select(UserModel).where(UserModel.id == order.user_id)
+            )
+            user = user_result.scalar_one_or_none()
+            if user:
+                message = {
+                    "type": "order_status_update",
+                    "order_id": order.id,
+                    "status": "cancelled",
+                    "message": f"Заказ #{order.id} отменён",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                await websocket_manager.send_to_user(user.email, message)
+                logger.info(f"WebSocket уведомление отправлено: {user.email}, заказ #{order.id}")
+        except Exception as e:
+            logger.error(f"Ошибка отправки WebSocket уведомления: {e}")
+        
+        await db.commit()
+        return {"status": "ok"}

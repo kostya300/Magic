@@ -19,6 +19,7 @@ function SearchResults() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const searchProducts = async () => {
@@ -37,7 +38,20 @@ function SearchResults() {
         setLoading(false);
       }
     };
+    const loadCartCount = async () => {
+      try {
+        const res = await authFetch('/cart/');
+        if (res.ok) {
+          const data = await res.json();
+          setCartCount(data.total_quantity || 0);
+        }
+      } catch (err) {
+        console.error('Error loading cart count:', err);
+      }
+    };
+
     searchProducts();
+    loadCartCount();
   }, [query]);
 
   const onOpenProduct = (product) => {
@@ -47,7 +61,7 @@ function SearchResults() {
   return (
     <div className="general-page">
       <AnnouncementBar />
-      <Header />
+      <Header cartCount={cartCount} />
       <main className="general-main">
         <div className="general-container">
           <div className="search-results-page">

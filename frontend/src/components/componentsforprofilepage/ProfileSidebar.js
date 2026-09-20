@@ -12,10 +12,16 @@ const navItems = [
 
 function ProfileSidebar({ activeSection, onSectionChange, isOpen, onToggle }) {
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await fetch('/users/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      navigate('/login');
+    }
   };
 
   return (

@@ -178,7 +178,7 @@ function Header({cartCount = 0, categories = [], onSearch}) {
                 <div className="general-header-actions">
                     <AuthLink className="general-auth-desktop"/>
 
-                    <button className="general-header-btn">
+                    <button className="general-header-btn" onClick={() => navigate(isAuthenticated() ? '/favorites' : '/login')}>
                         <Heart size={16}/>
                     </button>
                     <button className="general-header-btn"

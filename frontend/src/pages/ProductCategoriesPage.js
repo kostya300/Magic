@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Header, Footer, Brands, Newsletter } from '../components/componentsforgeneralpage_js';
+import { authFetch } from '../utils/authUtils';
 import ProductCard from '../components/componentsforgeneralpage_js/ProductCard';
 import '../styles/components/ProductCategoriesPageComponentsCss/ProductCategoriesPage.css';
 
@@ -11,6 +12,7 @@ function ProductCategoriesPage() {
     const [category, setCategory] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cartCount, setCartCount] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,12 +46,25 @@ function ProductCategoriesPage() {
             }
         };
 
+        const loadCartCount = async () => {
+            try {
+                const res = await authFetch('/cart/');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCartCount(data.total_quantity || 0);
+                }
+            } catch (err) {
+                console.error('Error loading cart count:', err);
+            }
+        };
+
         fetchData();
+        loadCartCount();
     }, [categoryId]);
 
     if (loading) return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
                 Загрузка...
             </div>
@@ -58,7 +73,7 @@ function ProductCategoriesPage() {
 
     if (!category) return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
             <main className="general-main">
                 <div className="general-container">
                     <h2>Категория не найдена</h2>
@@ -77,7 +92,7 @@ function ProductCategoriesPage() {
 
     return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
 
             <main className="general-main">
                 <div className="general-container">

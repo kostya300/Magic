@@ -1,5 +1,7 @@
+from celery import Celery
 from fastapi import FastAPI, status
-from app.routers import categories, products, users, reviews,cart,orders,payments,newsletter
+from fastapi import WebSocket
+from app.routers import categories, products, users, reviews,cart,orders,payments,newsletter,favorites
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -9,7 +11,22 @@ from fastapi.staticfiles import StaticFiles
 from app.config import FRONTEND_URL, DEBUG, ALLOWED_HOSTS,SESSIONMIDDLEWARE
 from starlette.middleware.sessions import SessionMiddleware
 import app.logger  # noqa: F401 - инициализация логирования
+celery = Celery(
+    __name__,
+    broker='redis://127.0.0.1:6379/0',
+    backend='redis://127.0.0.1:6379/0',
+    broker_connection_retry_on_startup=True,
 
+)
+celery.conf.update(
+    task_serializer='json',
+    result_serializer='json',
+    accept_content=['json'],
+    timezone='UTC',
+    enable_utc=True,
+    task_track_started=True,
+    imports=('app.routers.tasks',),
+)
 app = FastAPI(
     title="FastAPI Интернет-магазин",
     version="1.0.0",
@@ -51,6 +68,7 @@ app.include_router(users.router)
 app.include_router(reviews.router)
 app.include_router(payments.router)
 app.include_router(newsletter.router)
+app.include_router(favorites.router)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
@@ -97,3 +115,29 @@ async def root():
 
     logger.info("Root endpoint accessed")
     return {"message": "Добро пожаловать в API интернет-магазина!"}
+
+
+@app.websocket("/ws/notifications/{email}")
+async def websocket_notification(websocket: WebSocket, email: str):
+    """
+    WebSocket эндпоинт для отправки уведомлений пользователю.
+    URL: ws://localhost:8000/ws/notifications/user@email.com
+    """
+    from app.websocket import websocket_manager
+
+    await websocket_manager.connect(websocket, email)
+    try:
+        while True:
+            # Держим соединение открытым
+            await websocket.receive_text()
+    except Exception:
+        websocket_manager.disconnect(websocket, email)
+
+
+from app.cache import close_redis
+import asyncio
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_redis()

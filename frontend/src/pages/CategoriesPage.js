@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header, Footer, Brands, Newsletter } from '../components/componentsforgeneralpage_js';
+import { authFetch } from '../utils/authUtils';
 import CategoryCard from '../components/CategoriesPage/CategoryCard';
 import '../styles/components/CategoriesPage/CategoriesPage.css';
 
 function CategoriesPage() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cartCount, setCartCount] = useState(0);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -22,12 +24,25 @@ function CategoriesPage() {
             }
         };
 
+        const loadCartCount = async () => {
+            try {
+                const res = await authFetch('/cart/');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCartCount(data.total_quantity || 0);
+                }
+            } catch (err) {
+                console.error('Error loading cart count:', err);
+            }
+        };
+
         fetchCategories();
+        loadCartCount();
     }, []);
 
     if (loading) return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
                 Загрузка...
             </div>
@@ -36,7 +51,7 @@ function CategoriesPage() {
 
     return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
 
             <main className="general-main">
                 <div className="general-container">

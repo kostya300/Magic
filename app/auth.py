@@ -10,7 +10,7 @@ from app.models.users import User as UserModel
 from app.config import SECRET_KEY, ALGORITHM
 from app.db_depends import get_async_db
 from loguru import logger
-
+from app.cache import cache_get_user, cache_set_user
 # Создаём контекст для хеширования с использованием bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -48,9 +48,6 @@ def create_refresh_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_async_db)):
-    """
-        Проверяет JWT и возвращает пользователя из базы.
-    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -65,12 +62,36 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     except jwt.PyJWTError:
         logger.warning("Невалидный токен: ошибка декодирования JWT")
         raise credentials_exception
+
+    # Пробуем получить из кэша
+    cached = await cache_get_user(email)
+    if cached:
+        logger.info(f"Пользователь из кэша: {email}")
+        return cached
+
+    # Если нет в кэше — берём из БД
     result = await db.scalars(
-        select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
+        select(UserModel).where(UserModel.email == email, UserModel.is_active == True)
+    )
     user = result.first()
     if user is None:
         logger.warning(f"Пользователь не найден или неактивен: {email}")
         raise credentials_exception
+
+    # Сохраняем в кэш
+    user_dict = {
+        "id": user.id,
+        "email": user.email,
+        "role": user.role,
+        "is_active": user.is_active,
+    }
+    await cache_set_user(email, user_dict)
+    logger.info(f"Пользователь из БД и закэширован: {email}")
+
+    # Преобразуем обратно в модель для совместимости
+    user.email = user_dict["email"]
+    user.role = user_dict["role"]
+    user.is_active = user_dict["is_active"]
     return user
 
 async def get_current_seller(current_user: UserModel = Depends(get_current_user)):

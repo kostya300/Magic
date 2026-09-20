@@ -38,9 +38,22 @@ function App() {
   const [featuredProduct, setFeaturedProduct] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
 
   const onOpenProduct = (product) => {
     navigate(`/products/${product.id}`);
+  };
+
+  const loadCartCount = async () => {
+    try {
+      const res = await authFetch('/cart/');
+      if (res.ok) {
+        const data = await res.json();
+        setCartCount(data.total_quantity || 0);
+      }
+    } catch (err) {
+      console.error('Error loading cart count:', err);
+    }
   };
 
   const onAddToCart = async (product) => {
@@ -55,6 +68,7 @@ function App() {
       });
       if (res.ok) {
         console.log(`Added ${product.name} to cart`);
+        loadCartCount();
       } else {
         const errorData = await res.json();
         console.error('Error adding to cart:', errorData);
@@ -63,6 +77,11 @@ function App() {
       console.error('Failed to add to cart:', err);
     }
   };
+
+  // Загрузка количества товаров в корзине
+  useEffect(() => {
+    loadCartCount();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,7 +162,7 @@ function App() {
   return (
     <div className="general-page">
       <AnnouncementBar />
-      <Header />
+      <Header cartCount={cartCount} />
       <main className="general-main">
         <div className="general-container">
           <Hero featuredProduct={featuredProduct} onOpenProduct={onOpenProduct} />

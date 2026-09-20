@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authFetch } from '../../utils/authUtils';
 import CancelOrderForm from './componentfororderlistjs/CancelOrderForm';
 import CheckoutForm from './componentfororderlistjs/CheckoutForm';
 import PaymentConfirmed from './componentfororderlistjs/PaymentConfirmed';
 import '../../styles/components/orderpagecomponentsstyles/OrdersList.css';
+import '../../styles/components/orderpagecomponentsstyles/componentfororderlistjsstyle/OrderDeleteButton.css';
 
 function OrdersList({ orders, onUpdate }) {
   const navigate = useNavigate();
   const [checkoutOrder, setCheckoutOrder] = useState(null);
   const [cancellingOrder, setCancellingOrder] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const wsRef = useRef(null);
 
   const fmtPrice = (price) => `₽ ${Number(price).toLocaleString('ru')}`;
   const getStatusLabel = (status) => {
@@ -37,6 +40,62 @@ function OrdersList({ orders, onUpdate }) {
     return colors[status] || '#6b7280';
   };
   const [confirmedOrder, setConfirmedOrder] = useState(null);
+
+  // WebSocket подключение для получения уведомлений
+  useEffect(() => {
+    const email = localStorage.getItem('user_email');
+    if (!email) return;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${encodeURIComponent(email)}`;
+    
+    console.log('Connecting to WebSocket:', wsUrl);
+    
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'order_status_update') {
+        // Показываем уведомление
+        setNotification(data);
+        
+        // Автоматически обновляем список заказов
+        if (onUpdate) {
+          onUpdate();
+        }
+        
+        // Скрываем уведомление через 5 секунд
+        setTimeout(() => setNotification(null), 5000);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+      // Переподключаемся через 3 секунды
+      setTimeout(() => {
+        if (localStorage.getItem('user_email')) {
+          console.log('Attempting to reconnect WebSocket...');
+          const reconnectWs = new WebSocket(wsUrl);
+          wsRef.current = reconnectWs;
+        }
+      }, 3000);
+    };
+
+    return () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, [onUpdate]);
 
   // Обновляем список заказов при возврате из YooKassa
   useEffect(() => {
@@ -103,8 +162,40 @@ function OrdersList({ orders, onUpdate }) {
   };
   const handleGoHome = () => navigate('/');
 
+  // Обработка закрытия уведомления
+  const handleCloseNotification = () => {
+    setNotification(null);
+  };
+
   return (
     <>
+      {/* Уведомление о статусе заказа */}
+      {notification && (
+        <div className="order-notification-overlay" onClick={handleCloseNotification}>
+          <div className="order-notification-container" onClick={(e) => e.stopPropagation()}>
+            <div className="order-notification-header">
+              <span className="order-notification-icon">🔔</span>
+              <h4>Статус заказа обновлён</h4>
+              <button className="order-notification-close" onClick={handleCloseNotification}>
+                ×
+              </button>
+            </div>
+            <div className="order-notification-body">
+              <p className="order-notification-message">{notification.message}</p>
+              <div className="order-notification-details">
+                <span className="order-notification-order">Заказ #{notification.order_id}</span>
+                <span
+                  className="order-notification-status"
+                  style={{ color: getStatusColor(notification.status) }}
+                >
+                  {getStatusLabel(notification.status)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="orders-list">
         <button className="orders-home-btn" onClick={handleGoHome}>
           ← На главную

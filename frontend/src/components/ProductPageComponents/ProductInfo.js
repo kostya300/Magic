@@ -36,6 +36,29 @@ export default function ProductInfo({ product, qtyRef, onAddToCart, onBuyNow }) 
   const [selectedStorage, setSelectedStorage] = useState(0);
   const [wished, setWished] = useState(false);
   const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Проверяем, находится ли товар в избранном при загрузке
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const token = localStorage.getItem('access_token');
+      if (!token || !product?.id) return;
+      
+      try {
+        const res = await fetch(`/favorites/check/${product.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWished(data.is_favorite);
+        }
+      } catch (err) {
+        console.error('Error checking favorite:', err);
+      }
+    };
+    
+    checkFavorite();
+  }, [product?.id]);
 
   const fmt = (n) => "₽ " + n.toLocaleString("ru");
 
@@ -171,8 +194,45 @@ export default function ProductInfo({ product, qtyRef, onAddToCart, onBuyNow }) 
           )}
         </button>
         <button
-          onClick={() => setWished(!wished)}
+          onClick={async () => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+              window.location.href = '/login';
+              return;
+            }
+
+            setLoading(true);
+            try {
+              if (wished) {
+                // Удаляем из избранного
+                const res = await fetch(`/favorites/${product.id}`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                  setWished(false);
+                }
+              } else {
+                // Добавляем в избранное
+                const res = await fetch(`/favorites/${product.id}`, {
+                  method: 'POST',
+                  headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                if (res.ok) {
+                  setWished(true);
+                }
+              }
+            } catch (err) {
+              console.error('Error toggling favorite:', err);
+            } finally {
+              setLoading(false);
+            }
+          }}
           className={`pi-icon-btn ${wished ? "pi-icon-btn-wished" : ""}`}
+          disabled={loading}
         >
           <Heart size={16} className={wished ? "pi-heart-filled" : ""} />
         </button>

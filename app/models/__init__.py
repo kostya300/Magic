@@ -5,5 +5,6 @@ from .users import User
 from .reviews import Review
 from .orders import Order, OrderItem
 from .newsletter import NewsletterSubscriber
+from .favorites import Favorite
 
-__all__ = ["Category", "CartItem", "Order", "OrderItem", "Product", "User", "Review", "NewsletterSubscriber"]
+__all__ = ["Category", "CartItem", "Order", "OrderItem", "Product", "User", "Review", "NewsletterSubscriber", "Favorite"]

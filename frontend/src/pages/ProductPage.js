@@ -26,6 +26,7 @@ function ProductPage() {
     const [product, setProduct] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cartCount, setCartCount] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -77,6 +78,22 @@ function ProductPage() {
         fetchData();
     }, [productId]);
 
+    const loadCartCount = async () => {
+        try {
+            const res = await authFetch('/cart/');
+            if (res.ok) {
+                const data = await res.json();
+                setCartCount(data.total_quantity || 0);
+            }
+        } catch (err) {
+            console.error('Error loading cart count:', err);
+        }
+    };
+
+    useEffect(() => {
+        loadCartCount();
+    }, []);
+
     const handleAddToCart = async (quantity = 1, goToCart = false) => {
         const actualQty = quantity ?? qtyRef.current ?? 1;
         if (!isAuthenticated()) {
@@ -98,6 +115,7 @@ function ProductPage() {
                 console.error('Error adding to cart:', errorData);
             } else {
                 console.log(`Added ${actualQty} item(s) to cart`);
+                loadCartCount();
                 if (goToCart) {
                     navigate('/cart');
                 }
@@ -121,7 +139,7 @@ function ProductPage() {
 
     if (loading) return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
                 Загрузка...
             </div>
@@ -130,7 +148,7 @@ function ProductPage() {
 
     if (!product) return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
             <main className="general-main">
                 <div className="general-container">
                     <h2>Товар не найден</h2>
@@ -143,7 +161,7 @@ function ProductPage() {
 
     return (
         <div className="general-page">
-            <Header />
+            <Header cartCount={cartCount} />
 
             <main className="general-main">
                 <div className="general-container">
@@ -178,7 +196,7 @@ function ProductPage() {
             <footer>
                 <div className="general-container">
                     <Brands />
-                    <Newsletter />
+
                 </div>
                 <Footer />
             </footer>

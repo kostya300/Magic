@@ -1,0 +1,136 @@
+/* frontend/src/styles/components/favorite_page_components_stayles/FavoritePage.css */
+
+/* Загрузка */
+.favorite-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.favorite-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #4f8ef7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.favorite-loading p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Ошибка */
+.favorite-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.favorite-error p {
+  color: #991b1b;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.favorite-retry-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.favorite-retry-btn:hover {
+  background: #dc2626;
+}
+
+/* Пустое состояние */
+.favorite-empty {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.favorite-empty-icon {
+  font-size: 64px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.favorite-empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.favorite-empty-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.favorite-shop-btn {
+  background: #4f8ef7;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.favorite-shop-btn:hover {
+  background: #3d7de8;
+}
+
+/* Сетка товаров */
+.favorite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+/* Заголовок страницы */
+.favorite-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.favorite-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.favorite-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}

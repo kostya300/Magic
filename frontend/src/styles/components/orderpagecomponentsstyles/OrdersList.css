@@ -45,6 +45,17 @@
   font-weight: 600;
   font-size: 13px;
 }
+@media (max-width: 768px) {
+  .order-card-header {
+    flex-wrap: wrap;
+  }
+
+  .order-status {
+    width: 100%;
+    text-align: right;
+    margin-top: 4px;
+  }
+}
 
 .order-items {
   display: flex;
@@ -216,4 +227,120 @@
 .orders-home-btn:hover {
   background: #f9fafb;
   border-color: #9ca3af;
+}
+
+/* Уведомления о статусе заказа */
+.order-notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.order-notification-container {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.order-notification-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.order-notification-icon {
+  font-size: 24px;
+}
+
+.order-notification-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  flex: 1;
+}
+
+.order-notification-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 50%;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.order-notification-close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.order-notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-notification-message {
+  margin: 0;
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.order-notification-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.order-notification-order {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+.order-notification-status {
+  font-weight: 600;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #f9fafb;
 }
