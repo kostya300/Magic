@@ -204,6 +204,32 @@ async def get_all_products(
     }
 
 
+@router.get("/search/suggestions")
+async def get_search_suggestions(
+        q: str = Query(..., min_length=1, max_length=50, description="Поисковый запрос"),
+        limit: int = Query(5, ge=1, le=10, description="Максимум подсказок"),
+        db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Возвращает подсказки для автодополнения поиска.
+    """
+    search_value = q.strip()
+    if not search_value:
+        return {"suggestions": []}
+
+    ts_query = func.websearch_to_tsquery('english', search_value)
+    stmt = (
+        select(ProductModel.name, func.ts_rank_cd(ProductModel.tsv, ts_query).label('rank'))
+        .where(ProductModel.is_active == True, ProductModel.tsv.op('@@')(ts_query))
+        .order_by(desc('rank'))
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    rows = result.all()
+    suggestions = [row[0] for row in rows]
+    return {"suggestions": suggestions}
+
+
 # 2. POST /products/ - создать товар
 @router.post("/", response_model=ProductSchema, status_code=status.HTTP_201_CREATED)
 async def create_product(

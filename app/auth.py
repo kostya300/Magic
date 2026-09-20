@@ -9,6 +9,7 @@ from sqlalchemy import select
 from app.models.users import User as UserModel
 from app.config import SECRET_KEY, ALGORITHM
 from app.db_depends import get_async_db
+from loguru import logger
 
 # Создаём контекст для хеширования с использованием bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -59,13 +60,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
+            logger.warning(f"Невалидный токен: отсутствует sub")
             raise credentials_exception
     except jwt.PyJWTError:
+        logger.warning("Невалидный токен: ошибка декодирования JWT")
         raise credentials_exception
     result = await db.scalars(
         select(UserModel).where(UserModel.email == email, UserModel.is_active == True))
     user = result.first()
     if user is None:
+        logger.warning(f"Пользователь не найден или неактивен: {email}")
         raise credentials_exception
     return user
 

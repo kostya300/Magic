@@ -17,6 +17,8 @@ function ProfilePage() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [totalSpent, setTotalSpent] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -39,6 +41,19 @@ function ProfilePage() {
         const data = await res.json();
         setUser(data);
         localStorage.setItem('user_email', data.email);
+
+        // Загружаем заказы и статистику
+        const ordersRes = await authFetch('/orders/?page=1&page_size=100');
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          setOrders(ordersData.items || []);
+          
+          // Считаем общую сумму
+          const total = (ordersData.items || []).reduce((sum, order) => {
+            return sum + Number(order.total_amount || 0);
+          }, 0);
+          setTotalSpent(total);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -110,7 +125,7 @@ function ProfilePage() {
 
               {/* Stats cards */}
               <div style={{ marginBottom: '24px' }}>
-                <StatsCards />
+                <StatsCards orders={orders} totalSpent={totalSpent} />
               </div>
 
               {/* Chart + Activity grid */}

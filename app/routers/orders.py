@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
+from pydantic import BaseModel
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from datetime import datetime, timedelta
 
 from app.auth import get_current_user
 from app.db_depends import get_async_db
@@ -17,6 +19,59 @@ router = APIRouter(
     prefix="/orders",
     tags=["orders"],
 )
+
+
+class OrderStats(BaseModel):
+    total_orders: int
+    total_spent: Decimal
+    pending_orders: int
+    completed_orders: int
+
+
+@router.get("/stats", response_model=OrderStats)
+async def get_order_stats(
+    db: AsyncSession = Depends(get_async_db),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """
+    Возвращает статистику заказов пользователя.
+    """
+    # Общее количество заказов
+    total_result = await db.scalar(
+        select(func.count(OrderModel.id)).where(OrderModel.user_id == current_user.id)
+    )
+    total_orders = total_result or 0
+
+    # Общая сумма всех заказов
+    spent_result = await db.scalar(
+        select(func.coalesce(func.sum(OrderModel.total_amount), 0))
+        .where(OrderModel.user_id == current_user.id)
+    )
+    total_spent = Decimal(str(spent_result or 0))
+
+    # Количество заказов в статусе pending
+    pending_result = await db.scalar(
+        select(func.count(OrderModel.id))
+        .where(OrderModel.user_id == current_user.id, OrderModel.status == "pending")
+    )
+    pending_orders = pending_result or 0
+
+    # Количество завершённых заказов (paid/delivered)
+    completed_result = await db.scalar(
+        select(func.count(OrderModel.id))
+        .where(
+            OrderModel.user_id == current_user.id,
+            OrderModel.status.in_(["paid", "delivered", "shipped"])
+        )
+    )
+    completed_orders = completed_result or 0
+
+    return OrderStats(
+        total_orders=total_orders,
+        total_spent=total_spent,
+        pending_orders=pending_orders,
+        completed_orders=completed_orders,
+    )
 
 async def _load_order_with_items(db: AsyncSession, order_id: int) -> OrderModel | None:
     result = await db.execute(

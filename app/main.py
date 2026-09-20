@@ -1,16 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from app.routers import categories, products, users, reviews,cart,orders,payments,newsletter
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
-from app.config import FRONTEND_URL, DEBUG
-
+from app.config import FRONTEND_URL, DEBUG, ALLOWED_HOSTS,SESSIONMIDDLEWARE
+from starlette.middleware.sessions import SessionMiddleware
+import app.logger  # noqa: F401 - инициализация логирования
 
 app = FastAPI(
     title="FastAPI Интернет-магазин",
-    version="0.1.0",
+    version="1.0.0",
+    description="API v1 - Интернет-магазин Mr.Store",
 )
+
+
+# Middleware для логирования HTTP запросов
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        from loguru import logger
+
+        logger.info(f"{request.method} {request.url.path}")
+        response = await call_next(request)
+        logger.info(f"{request.method} {request.url.path} - Status: {response.status_code}")
+        return response
+
+
+app.add_middleware(LoggingMiddleware)
+app.add_middleware(SessionMiddleware, secret_key=SESSIONMIDDLEWARE)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,7 +38,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
@@ -33,6 +53,11 @@ app.include_router(payments.router)
 app.include_router(newsletter.router)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
+
+# Защита от Host Header Attacks (используем встроенный middleware Starlette)
+allowed_hosts = ["localhost", "127.0.0.1", "0.0.0.0"] + ALLOWED_HOSTS
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+
 # Заголовки безопасности
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -68,4 +93,7 @@ async def root():
     """
     Корневой маршрут, подтверждающий, что API работает.
     """
+    from loguru import logger
+
+    logger.info("Root endpoint accessed")
     return {"message": "Добро пожаловать в API интернет-магазина!"}

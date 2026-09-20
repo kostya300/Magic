@@ -1,7 +1,7 @@
 // frontend/src/components/componentsforgeneralpage_js/Header.js
 import '../../styles/components/generalpagecss/Header.css';
 import {Zap, Search, Heart, ShoppingCart, User, Menu, X} from 'lucide-react';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import AuthLink from '../logcomp/AuthLink';
 import {isAuthenticated} from '../../utils/authUtils';
@@ -12,6 +12,73 @@ function Header({cartCount = 0, categories = [], onSearch}) {
     const navigate = useNavigate();
     const [mobileMenu, setMobileMenu] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [activeSuggestion, setActiveSuggestion] = useState(-1);
+
+    // Debounce для запросов автодополнения
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery.trim().length >= 2) {
+                fetchSuggestions(searchQuery.trim());
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const fetchSuggestions = async (query) => {
+        try {
+            const res = await fetch(`/products/search/suggestions?q=${encodeURIComponent(query)}&limit=5`);
+            if (res.ok) {
+                const data = await res.json();
+                setSuggestions(data.suggestions || []);
+                setShowSuggestions(true);
+            }
+        } catch (err) {
+            console.error('Failed to fetch suggestions:', err);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setSearchQuery(suggestion);
+        setShowSuggestions(false);
+        handleSearch();
+    };
+
+    const handleKeyDownSuggestions = (e) => {
+        if (suggestions.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveSuggestion(prev => Math.min(prev + 1, suggestions.length - 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveSuggestion(prev => Math.max(prev - 1, 0));
+        } else if (e.key === 'Enter' && activeSuggestion >= 0) {
+            e.preventDefault();
+            handleSuggestionClick(suggestions[activeSuggestion]);
+        } else if (e.key === 'Escape') {
+            setShowSuggestions(false);
+            setActiveSuggestion(-1);
+        }
+    };
+
+    // Закрытие подсказок при клике вне
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.general-search-wrap')) {
+                setShowSuggestions(false);
+                setActiveSuggestion(-1);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
 
     const handleSearch = () => {
         const trimmed = searchQuery.trim();
@@ -66,8 +133,12 @@ function Header({cartCount = 0, categories = [], onSearch}) {
                         <input
                             type="text"
                             value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            onKeyDown={handleKeyDown}
+                            onChange={e => {
+                                setSearchQuery(e.target.value);
+                                setActiveSuggestion(-1);
+                            }}
+                            onKeyDown={handleKeyDownSuggestions}
+                            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                             placeholder="Поиск товаров, брендов, категорий..."
                         />
                         {searchQuery && (
@@ -85,6 +156,22 @@ function Header({cartCount = 0, categories = [], onSearch}) {
                     <button className="general-search-btn" onClick={handleSearch}>
                         <Search size={16}/>
                     </button>
+                    
+                    {/* Suggestions dropdown */}
+                    {showSuggestions && suggestions.length > 0 && (
+                        <div className="general-search-suggestions">
+                            {suggestions.map((suggestion, index) => (
+                                <div
+                                    key={index}
+                                    className={`general-suggestion-item ${index === activeSuggestion ? 'active' : ''}`}
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    onMouseEnter={() => setActiveSuggestion(index)}
+                                >
+                                    {suggestion}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Actions */}

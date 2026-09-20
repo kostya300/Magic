@@ -22,9 +22,7 @@ from app.auth import (
     get_current_seller,
 )
 
-import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 # Защита от брутфорса: email -> список timestamp неудачных попыток
 _brute_force_tracker: dict[str, list[float]] = defaultdict(list)
@@ -73,6 +71,7 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)
 
     db.add(db_user)
     await db.commit()
+    logger.info(f"Регистрация нового пользователя: {user.email} (role={user.role})")
     return db_user
 
 
@@ -93,6 +92,7 @@ async def create_admin(admin_data: UserCreate, db: AsyncSession = Depends(get_as
 
     db.add(db_admin)
     await db.commit()
+    logger.info(f"Создан администратор: {admin_data.email}")
     return db_admin
 
 
@@ -156,6 +156,12 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     # Успешный вход — сбрасываем счётчик
     if identifier in _brute_force_tracker:
         del _brute_force_tracker[identifier]
@@ -163,6 +169,8 @@ async def login(
     # Создаем токены
     access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})
     refresh_token = create_refresh_token(data={"sub": user.email, "role": user.role, "id": user.id})
+
+    logger.info(f"Успешный вход: {email} (role={user.role})")
 
     return JSONResponse(
         content={
@@ -196,6 +204,8 @@ async def refresh_token(request: RefreshTokenRequest = Body(...), db: AsyncSessi
     if user is None:
         raise credentials_exception
 
+    logger.info(f"Обновление токена: {email}")
+
     access_token = create_access_token(data={"sub": user.email, "role": user.role, "id": user.id})
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -212,6 +222,7 @@ async def update_me(
     current_user: UserModel = Depends(get_current_user)
 ):
     if user_update.email and user_update.email != current_user.email:
+        logger.info(f"Смена email: {current_user.email} -> {user_update.email}")
         existing = await db.scalars(
             select(UserModel).where(UserModel.email == user_update.email)
         ).first()
@@ -229,6 +240,7 @@ async def update_me(
 
     if user_update.password:
         current_user.hashed_password = hash_password(user_update.password)
+        logger.info(f"Смена пароля: {current_user.email}")
 
     # Только admin может менять роль
     if user_update.role and user_update.role != current_user.role:
@@ -278,6 +290,8 @@ async def delete_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
+    logger.info(f"Удаление пользователя: {user.email} (запрос от {current_user.email})")
 
     await db.execute(delete(UserModel).where(UserModel.id == user_id))
     await db.commit()

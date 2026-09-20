@@ -74,6 +74,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+}
+
+.profile-notif-wrapper {
+  position: relative;
 }
 
 .profile-notif-btn {
@@ -105,9 +110,21 @@
 }
 
 .profile-avatar-top {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  object-fit: cover;
+  overflow: hidden;
   border: 1px solid var(--_border);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile-avatar-top:hover {
+  border-color: var(--_accent);
+  box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
+}
+
+.profile-avatar-top-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
