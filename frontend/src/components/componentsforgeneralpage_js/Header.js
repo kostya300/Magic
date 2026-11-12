@@ -118,7 +118,7 @@ function Header({cartCount = 0, categories = [], onSearch}) {
                             href="#"
                             onClick={(e) => {
                                 e.preventDefault();
-                                navigate(link === 'Каталог' ? '/' : `/category?name=${link}`);
+                                navigate(link === 'Каталог' ? '/categories' : `/category?name=${link}`);
                             }}
                         >
                             {link}
@@ -210,7 +210,7 @@ function Header({cartCount = 0, categories = [], onSearch}) {
                         onClick={(e) => {
                             e.preventDefault();
                             setMobileMenu(false);
-                            navigate(link === 'Каталог' ? '/' : `/category?name=${link}`);
+                            navigate(link === 'Каталог' ? '/categories' : `/category?name=${link}`);
                         }}
                     >
                         {link}

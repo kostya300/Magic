@@ -49,7 +49,7 @@ function OrdersTable() {
     return `₽ ${Number(amount).toLocaleString('ru')}`;
   };
 
-  if (loading) return <div className="profile-orders">Загрузка...</div>;
+  // Загрузка в фоне — экран не показываем
 
   return (
     <div className="profile-orders">

@@ -149,15 +149,7 @@ function App() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="general-page">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
-          Загрузка...
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="general-page">

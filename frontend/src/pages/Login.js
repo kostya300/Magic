@@ -63,7 +63,7 @@ function Login() {
                 <div className="general-container">
                     <div className="auth-page">
                         <div className="auth-card">
-                            <h2>Вход в личный кабинет</h2>
+                            <h2>Вход</h2>
 
                             {error && <div className="auth-error">{error}</div>}
 

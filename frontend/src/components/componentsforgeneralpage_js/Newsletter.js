@@ -50,7 +50,7 @@ function Newsletter() {
       <form className="general-newsletter-form" onSubmit={handleSubmit}>
         <input
           type="email"
-          placeholder="ваш@email.ru"
+          placeholder="Ваща почта"
           className="general-newsletter-input"
           value={email}
           onChange={e => setEmail(e.target.value)}

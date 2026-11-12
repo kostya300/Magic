@@ -66,7 +66,6 @@ function ProfilePage() {
 
   const handleToggleSidebar = () => setSidebarOpen(prev => !prev);
 
-  if (loading) return <div className="profile-page">Загрузка...</div>;
   if (error) return (
     <div className="profile-page">
       <div style={{ padding: '48px', textAlign: 'center' }}>
