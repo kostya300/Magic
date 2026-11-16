@@ -153,10 +153,19 @@ async def create_review(
     db.add(db_review)
     await db.flush()
     await db.refresh(db_review)
-    await update_product_rating(db, review.product_id)
+    new_rating = await update_product_rating(db, review.product_id)
     await db.commit()
 
-    return db_review
+    return {
+        "id": db_review.id,
+        "user_id": db_review.user_id,
+        "product_id": db_review.product_id,
+        "comment": db_review.comment,
+        "comment_date": db_review.comment_date,
+        "grade": db_review.grade,
+        "is_active": db_review.is_active,
+        "rating": new_rating,
+    }
 
 
 # 4. DELETE /reviews/{review_id} - мягкое удаление отзыва (только admin)

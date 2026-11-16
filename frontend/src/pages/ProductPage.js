@@ -25,6 +25,7 @@ function ProductPage() {
     const qtyRef = useRef(1);
     const [product, setProduct] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [cartCount, setCartCount] = useState(0);
 
@@ -50,7 +51,20 @@ function ProductPage() {
                     }));
                 }
 
-                setProduct({ ...productData, inStock: productData.stock > 0, specs: specsArray });
+                setProduct({ ...productData, inStock: productData.stock > 0, specs: specsArray, reviews: 0 });
+
+                // Load reviews
+                try {
+                    const reviewsRes = await fetch(`/reviews/?product_id=${productData.id}&limit=100`);
+                    const reviewsData = await reviewsRes.json();
+                    const reviewsArray = Array.isArray(reviewsData) ? reviewsData : [];
+                    setReviews(reviewsArray);
+                    // Update product with review count
+                    setProduct(prev => ({ ...prev, reviews: reviewsArray.length }));
+                } catch (err) {
+                    console.error('Error fetching reviews:', err);
+                    setReviews([]);
+                }
 
                 // Load related products (same category)
                 if (productData.category_id) {
@@ -179,7 +193,20 @@ function ProductPage() {
                                 />
                             </div>
 
-                            <Tabs product={product} />
+                            <Tabs product={product} reviewList={reviews} onReviewAdded={(newRating) => {
+                                // Перезагружаем отзывы и обновляем рейтинг
+                                fetch(`/reviews/?product_id=${product.id}&limit=100`)
+                                    .then(r => r.json())
+                                    .then(data => {
+                                        const reviewsArray = Array.isArray(data) ? data : [];
+                                        setReviews(reviewsArray);
+                                        setProduct(prev => ({ ...prev, reviews: reviewsArray.length }));
+                                        if (newRating) {
+                                            setProduct(prev => ({ ...prev, rating: newRating }));
+                                        }
+                                    })
+                                    .catch(err => console.error('Error reloading reviews:', err));
+                            }} />
 
                             {relatedProducts.length > 0 && (
                                 <RelatedProducts
