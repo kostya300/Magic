@@ -1,6 +1,7 @@
 // frontend/src/components/componentsforgeneralpage_js/Footer.js
 import '../../styles/components/generalpagecss/Footer.css';
 import { Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -27,15 +28,23 @@ function Footer() {
 
           {/* Links columns */}
           {[
-            { title: 'Покупателям', links: ['Каталог', 'Акции', 'Бонусная программа', 'Рассрочка'] },
-            { title: 'Помощь', links: ['Доставка', 'Возврат', 'Гарантия', 'Контакты'] },
-            { title: 'Компания', links: ['О нас', 'Магазины', 'Партнёрам', 'Карьера'] },
+            { title: 'Покупателям', links: ['Каталог'] },
+            { title: 'Помощь', links: ['Контакты'] },
+            { title: 'Компания', links: ['О нас'] },
           ].map(({ title, links }) => (
             <div key={title} className="general-footer-col">
               <p className="general-footer-col-title">{title}</p>
               <ul className="general-footer-links">
                 {links.map(l => (
-                  <li key={l}><a href="#">{l}</a></li>
+                  <li key={l}>
+                    {l === 'Каталог' ? (
+                      <Link to="/categories">{l}</Link>
+                    ) : l === 'О нас' ? (
+                      <Link to="/about">{l}</Link>
+                    ) : (
+                      <a href="#">{l}</a>
+                    )}
+                  </li>
                 ))}
               </ul>
             </div>

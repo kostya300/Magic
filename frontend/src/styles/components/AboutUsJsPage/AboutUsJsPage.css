@@ -1,0 +1,107 @@
+/* AboutUs Page */
+.aboutus-page {
+  padding: 40px 0;
+}
+
+.aboutus-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 32px;
+}
+
+.aboutus-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.aboutus-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.aboutus-section-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.aboutus-text {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Features */
+.aboutus-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .aboutus-features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.aboutus-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.aboutus-feature-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #4f8ef7;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aboutus-feature-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.aboutus-feature-desc {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Contacts */
+.aboutus-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aboutus-contact-item {
+  font-size: 15px;
+  color: #4b5563;
+  margin: 0;
+}
+
+.aboutus-contact-item strong {
+  color: #111827;
+  font-weight: 600;
+}

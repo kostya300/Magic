@@ -1,15 +1,20 @@
 // frontend/src/pages/CategoriesPage.js
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Header, Footer, Brands, Newsletter } from '../components/componentsforgeneralpage_js';
 import { authFetch } from '../utils/authUtils';
 import CategoryCard from '../components/CategoriesPage/CategoryCard';
 import '../styles/components/CategoriesPage/CategoriesPage.css';
 
 function CategoriesPage() {
+    const location = useLocation();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [cartCount, setCartCount] = useState(0);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    },[location.pathname]);
 
     useEffect(() => {
         const fetchCategories = async () => {

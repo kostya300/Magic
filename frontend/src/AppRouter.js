@@ -12,25 +12,27 @@ import Ordersgeneral from './pages/Ordersgeneral';
 import ProfileUser from './pages/ProfileUser';
 import SearchResults from './pages/SearchResults';
 import FavoritePage from './pages/Favorite_page';
+import AboutUs from './pages/AboutUs';
 
 function AppRouter() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<App/>}/>\
-                <Route path="/cart" element={<CartPage/>}/>\
-                <Route path="/products/:productId" element={<ProductPage/>}/>\
-                <Route path="/profile" element={<ProfilePage/>}/>\
-                <Route path="/profile/user" element={<ProfileUser/>}/>\
-                <Route path="/orders" element={<Ordersgeneral/>}/>\
-                <Route path="/profile/orders" element={<Ordersgeneral/>}/>\
-                <Route path="/login" element={<Login/>}/>\
-                <Route path="/register" element={<Register/>}/>\
-                <Route path="/categories" element={<CategoriesPage/>}/>\
-                <Route path="/products/category/:categoryId" element={<ProductCategoriesPage/>}/>\
-                <Route path="/checkout/:orderId" element={<ProfilePage/>}/>\
-                <Route path="/search" element={<SearchResults/>}/>\
-                <Route path="/favorites" element={<FavoritePage/>}/>\
+                <Route path="/" element={<App/>}/>
+                <Route path="/cart" element={<CartPage/>}/>
+                <Route path="/products/:productId" element={<ProductPage/>}/>
+                <Route path="/profile" element={<ProfilePage/>}/>
+                <Route path="/profile/user" element={<ProfileUser/>}/>
+                <Route path="/orders" element={<Ordersgeneral/>}/>
+                <Route path="/profile/orders" element={<Ordersgeneral/>}/>
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
+                <Route path="/categories" element={<CategoriesPage/>}/>
+                <Route path="/products/category/:categoryId" element={<ProductCategoriesPage/>}/>
+                <Route path="/checkout/:orderId" element={<ProfilePage/>}/>
+                <Route path="/search" element={<SearchResults/>}/>
+                <Route path="/favorites" element={<FavoritePage/>}/>
+                <Route path="/about" element={<AboutUs/>}/>
             </Routes>
         </Router>
     );
