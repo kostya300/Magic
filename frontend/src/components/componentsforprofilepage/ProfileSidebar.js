@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 const navItems = [
   { id: 'dashboard', icon: '📊', label: 'Обзор' },
-  { id: 'profile', icon: '👤', label: 'Профиль' },
   { id: 'orders', icon: '📦', label: 'Заказы' },
   { id: 'messages', icon: '💬', label: 'Сообщения', badge: 3 },
 ];
@@ -48,8 +47,6 @@ function ProfileSidebar({ activeSection, onSectionChange, isOpen, onToggle }) {
                   onClick={() => {
                     if (item.id === 'orders') {
                       navigate('/orders');
-                    } else if (item.id === 'profile') {
-                      navigate('/profile/user');
                     } else {
                       onSectionChange(item.id);
                     }

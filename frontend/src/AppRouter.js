@@ -9,7 +9,6 @@ import ProductCategoriesPage from './pages/ProductCategoriesPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Ordersgeneral from './pages/Ordersgeneral';
-import ProfileUser from './pages/ProfileUser';
 import SearchResults from './pages/SearchResults';
 import FavoritePage from './pages/Favorite_page';
 import AboutUs from './pages/AboutUs';
@@ -22,7 +21,6 @@ function AppRouter() {
                 <Route path="/cart" element={<CartPage/>}/>
                 <Route path="/products/:productId" element={<ProductPage/>}/>
                 <Route path="/profile" element={<ProfilePage/>}/>
-                <Route path="/profile/user" element={<ProfileUser/>}/>
                 <Route path="/orders" element={<Ordersgeneral/>}/>
                 <Route path="/profile/orders" element={<Ordersgeneral/>}/>
                 <Route path="/login" element={<Login/>}/>

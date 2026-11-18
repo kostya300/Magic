@@ -128,6 +128,9 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = Field(default=None, min_length=8)
     role: str | None = Field(default=None, pattern="^(buyer|seller)$")
+    name: str | None = Field(default=None, max_length=100)
+    phone: str | None = Field(default=None, max_length=30)
+    city: str | None = Field(default=None, max_length=100)
 
 
 class UserWithToken(BaseModel):
@@ -136,6 +139,10 @@ class UserWithToken(BaseModel):
     email: EmailStr
     is_active: bool
     role: str
+    name: str | None = None
+    phone: str | None = None
+    city: str | None = None
+    avatar_url: str | None = None
 
 
 class User(BaseModel):
@@ -143,6 +150,10 @@ class User(BaseModel):
     email: EmailStr
     is_active: bool
     role: str
+    name: str | None = None
+    phone: str | None = None
+    city: str | None = None
+    avatar_url: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

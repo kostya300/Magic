@@ -1,7 +1,9 @@
 import jwt
 import time
 from collections import defaultdict
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from pathlib import Path
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status, Request, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
@@ -28,6 +30,14 @@ from loguru import logger
 _brute_force_tracker: dict[str, list[float]] = defaultdict(list)
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_TIME = 300
+
+# Avatar settings
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+AVATAR_ROOT = BASE_DIR / "media" / "avatars"
+AVATAR_ROOT.mkdir(parents=True, exist_ok=True)
+ALLOWED_AVATAR_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_AVATAR_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -246,6 +256,14 @@ async def update_me(
             )
         current_user.role = user_update.role
 
+    # Обновляем новые поля профиля
+    if user_update.name is not None:
+        current_user.name = user_update.name
+    if user_update.phone is not None:
+        current_user.phone = user_update.phone
+    if user_update.city is not None:
+        current_user.city = user_update.city
+
     await db.commit()
     await cache_invalidate_user(current_user.email)
     return current_user
@@ -257,6 +275,73 @@ async def logout(current_user: UserModel = Depends(get_current_user)):
     await cache_invalidate_user(current_user.email)
     logger.info(f"Выход пользователя: {current_user.email}")
     return {"message": "Вы успешно вышли из системы"}
+
+
+def _validate_avatar(file: UploadFile) -> None:
+    """Проверяет MIME-тип, расширение и размер аватарки."""
+    if file.content_type not in ALLOWED_AVATAR_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Разрешены только изображения: jpg, png, webp"
+        )
+
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_AVATAR_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Разрешены только изображения: jpg, png, webp"
+        )
+
+    header = file.file.read(8)
+    file.file.seek(0)
+    if len(header) < 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Файл слишком маленький или повреждён"
+        )
+
+
+async def _save_avatar(file: UploadFile) -> str:
+    """Сохраняет аватарку и возвращает относительный URL."""
+    content = await file.read()
+    if len(content) > MAX_AVATAR_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Изображение слишком большое (макс. 2MB)"
+        )
+
+    extension = Path(file.filename or "").suffix.lower() or ".jpg"
+    file_name = f"{uuid.uuid4()}{extension}"
+    file_path = AVATAR_ROOT / file_name
+    file_path.write_bytes(content)
+
+    return f"/media/avatars/{file_name}"
+
+
+@router.post("/me/avatar", response_model=UserWithToken)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_async_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """
+    Загружает аватарку пользователя.
+    Поддерживает: jpg, png, webp. Макс. размер: 2MB.
+    """
+    _validate_avatar(file)
+
+    # Удаляем старую аватарку
+    if current_user.avatar_url:
+        old_path = BASE_DIR / current_user.avatar_url.lstrip("/")
+        if old_path.exists():
+            old_path.unlink()
+
+    avatar_url = await _save_avatar(file)
+    current_user.avatar_url = avatar_url
+    await db.commit()
+    await cache_invalidate_user(current_user.email)
+
+    return current_user
 
 
 # Параметризованные роуты ПОСЛЕ специфичных
