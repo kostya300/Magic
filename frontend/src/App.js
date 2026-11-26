@@ -132,6 +132,28 @@ function App() {
         setPopularProducts(uniquePopular.slice(0, 8));
         setNewArrivals(uniqueNewArr);
 
+        // Load review counts for all products
+        try {
+          const productIds = uniquePopular.slice(0, 8).map(p => p.id);
+          const reviewPromises = productIds.map(async (id) => {
+            try {
+              const res = await fetch(`/reviews/?product_id=${id}&limit=100`);
+              const data = await res.json();
+              return { productId: id, count: Array.isArray(data) ? data.length : 0 };
+            } catch (err) {
+              return { productId: id, count: 0 };
+            }
+          });
+          const reviewResults = await Promise.all(reviewPromises);
+          const reviewMap = {};
+          for (const r of reviewResults) {
+            reviewMap[r.productId] = r.count;
+          }
+          setPopularProducts(prev => prev.map(p => ({ ...p, reviews: reviewMap[p.id] || 0 })));
+        } catch (err) {
+          console.error('Error loading review counts:', err);
+        }
+
         // Featured product - random product for Hero
         const featRes = await fetch('/products/?page_size=1');
         const featData = await featRes.json();

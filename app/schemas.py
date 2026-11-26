@@ -93,6 +93,7 @@ class Product(BaseModel):
     seller_id: int = Field(description="ID продавца")
     is_active: bool = Field(description="Активность товара")
     rating: Optional[float] = Field(default=0.0, description="Средний рейтинг")
+    review_count: int = Field(default=0, description="Количество отзывов")
     specs: dict | None = Field(default=None, description="Характеристики товара")
     model_config = ConfigDict(from_attributes=True)
 

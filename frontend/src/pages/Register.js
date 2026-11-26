@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Header, Footer, Newsletter, Brands } from '../components/componentsforgeneralpage_js';
+import PasswordField from '../components/PasswordField';
 import '../styles/components/logcomp/LoginPage.css';
 
 function Register() {
@@ -42,7 +43,7 @@ function Register() {
                 throw new Error(data.detail || 'Ошибка регистрации');
             }
 
-            window.location.replace('/login');
+            navigate('/login');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -79,31 +80,24 @@ function Register() {
                                     />
                                 </div>
 
-                                <div className="auth-field">
-                                    <label>Пароль</label>
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="Минимум 8 символов"
-                                        autoComplete="new-password"
-                                        minLength={8}
-                                        required
-                                    />
-                                </div>
+                                <PasswordField
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Минимум 8 символов"
+                                    autoComplete="new-password"
+                                    minLength={8}
+                                    label="Пароль"
+                                />
 
-                                <div className="auth-field">
-                                    <label>Подтвердите пароль</label>
-                                    <input
-                                        type="password"
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        placeholder="Повторите пароль"
-                                        required
-                                    />
-                                </div>
+                                <PasswordField
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    placeholder="Повторите пароль"
+                                    autoComplete="new-password"
+                                    label="Подтвердите пароль"
+                                />
 
                                 <div className="auth-field">
                                     <label>Роль</label>

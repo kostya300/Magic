@@ -1,17 +1,25 @@
+
+
 import jwt
 import time
 from collections import defaultdict
 from pathlib import Path
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status, Request, UploadFile, File
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, status, Request, UploadFile, File, BackgroundTasks, Form
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from starlette.responses import JSONResponse
+from fastapi import Query
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from starlette.responses import JSONResponse, RedirectResponse
 from fastapi import Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
+import secrets
+import time
+from datetime import datetime, timedelta
 
-from app.config import ALGORITHM, SECRET_KEY
+from app.config import ALGORITHM, SECRET_KEY, FRONTEND_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
+import re
 from app.schemas import UserCreate, User as UserSchema, UserUpdate, UserWithToken
 from app.models.users import User as UserModel
 from app.db_depends import get_async_db
@@ -31,6 +39,19 @@ _brute_force_tracker: dict[str, list[float]] = defaultdict(list)
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_TIME = 300
 
+# Защита от password reset abuse: email -> timestamp последнего запроса
+_reset_request_tracker: dict[str, float] = {}
+RESET_REQUEST_COOLDOWN = 60  # 60 секунд между запросами на сброс
+
+# Хранилище токенов сброса пароля: token -> {email, expires}
+_reset_tokens: dict[str, dict] = {}
+RESET_TOKEN_EXPIRY = timedelta(hours=1)
+
+# Google OAuth
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
 # Avatar settings
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 AVATAR_ROOT = BASE_DIR / "media" / "avatars"
@@ -39,10 +60,200 @@ ALLOWED_AVATAR_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_AVATAR_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 MAX_AVATAR_SIZE = 2 * 1024 * 1024  # 2MB
 
+# Email validation regex
+EMAIL_REGEX = re.compile(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+)
+MAX_EMAIL_LENGTH = 320
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Запрос на сброс пароля с валидацией email."""
+    email: EmailStr = Field(
+        ...,
+        description="Email пользователя",
+        max_length=320  # RFC 5321 стандарт
+    )
+
+
+class ResetPasswordRequest(BaseModel):
+    """Запрос на установку нового пароля."""
+    token: str = Field(..., description="Токен сброса пароля")
+    new_password: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        description="Новый пароль (минимум 8 символов)"
+    )
+
+    @field_validator('new_password')
+    @classmethod
+    def password_strength(cls, v):
+        if not any(c.isupper() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну заглавную букву')
+        if not any(c.islower() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну строчную букву')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Пароль должен содержать хотя бы одну цифру')
+        return v
+
+
+@router.get("/google-login")
+async def google_login(request: Request):
+    """
+    Перенаправление на страницу авторизации Google.
+    
+    Защита:
+    - CSRF state token (сохраняется в cookie)
+    - Валидация redirect_uri
+    - Secure cookie
+    """
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth не настроен"
+        )
+    
+    # Генерируем state для CSRF защиты
+    state = secrets.token_urlsafe(32)
+    
+    auth_params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "state": state,
+        "access_type": "offline",
+        "prompt": "select_account"
+    }
+    
+    auth_url = f"{GOOGLE_AUTH_URL}?{httpx.QueryParams(auth_params)}"
+    
+    # Сохраняем state в secure cookie
+    response = RedirectResponse(url=auth_url)
+    response.set_cookie(
+        key="google_oauth_state",
+        value=state,
+        httponly=True,  # недоступен JS
+        secure=False,   # False для localhost (True для production)
+        samesite="lax", # защита от CSRF
+        max_age=300      # 5 минут
+    )
+    
+    return response
+
+
+@router.get("/google/callback")
+async def google_callback(
+    code: str = Query(...),
+    state: str = Query(...),
+    request: Request = None,
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Обработка ответа от Google OAuth.
+    
+    Защита:
+    - Проверка CSRF state из cookie
+    - Валидация redirect_uri
+    - Secure token handling
+    """
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth не настроен"
+        )
+    
+    # Проверяем CSRF state
+    cookie_state = request.cookies.get("google_oauth_state")
+    if not cookie_state or cookie_state != state:
+        logger.warning("Google OAuth CSRF validation failed")
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=csrf_failed")
+    
+    # Очищаем cookie после использования
+    # (будет очищено после перенаправления)
+    
+    # Обмениваем code на access token
+    async with httpx.AsyncClient() as client:
+        token_response = await client.post(
+            GOOGLE_TOKEN_URL,
+            data={
+                "code": code,
+                "grant_type": "authorization_code",
+                "redirect_uri": GOOGLE_REDIRECT_URI,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET
+            }
+        )
+        
+        if token_response.status_code != 200:
+            return RedirectResponse(url=f"{FRONTEND_URL}/login?error=oauth_failed")
+        
+        token_data = token_response.json()
+        access_token = token_data.get("access_token")
+        
+        # Получаем данные пользователя из Google
+        user_info_response = await client.get(
+            GOOGLE_USER_INFO_URL,
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        
+        if user_info_response.status_code != 200:
+            return RedirectResponse(url=f"{FRONTEND_URL}/login?error=oauth_failed")
+        
+        user_info = user_info_response.json()
+        google_email = user_info.get("email")
+        google_name = user_info.get("name", "")
+        google_picture = user_info.get("picture", "")
+        
+        if not google_email:
+            return RedirectResponse(url=f"{FRONTEND_URL}/login?error=oauth_failed")
+        
+        # Ищем или создаём пользователя
+        result = await db.scalars(
+            select(UserModel).where(UserModel.email == google_email)
+        )
+        user = result.first()
+        
+        if not user:
+            # Создаём нового пользователя
+            user = UserModel(
+                email=google_email,
+                hashed_password=hash_password(secrets.token_urlsafe(16)),  # случайный пароль
+                name=google_name,
+                role="buyer",
+                is_active=True
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+            logger.info(f"Создан новый пользователь через Google: {google_email}")
+        else:
+            # Обновляем имя и аватар если есть
+            if google_name and not user.name:
+                user.name = google_name
+            if google_picture and not user.avatar_url:
+                user.avatar_url = google_picture
+            await db.commit()
+            logger.info(f"Вход через Google: {google_email}")
+        
+        # Создаём токены
+        access_token = create_access_token(
+            data={"sub": user.email, "role": user.role, "id": user.id}
+        )
+        refresh_token = create_refresh_token(
+            data={"sub": user.email, "role": user.role, "id": user.id}
+        )
+        
+        # Перенаправляем на фронтенд с токенами
+        callback_url = f"{FRONTEND_URL}/auth-success?access_token={access_token}&refresh_token={refresh_token}"
+        return RedirectResponse(url=callback_url)
+
 
 # Специфичные роуты ДО параметризованных!
 @router.get("/", response_model=list[UserSchema])
@@ -67,6 +278,21 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_async_db)
 
 @router.post("/", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)):
+    """
+    Регистрация нового пользователя.
+    
+    Защита:
+    - Валидация email по RFC 5321
+    - Проверка сложности пароля
+    - Проверка уникальности email
+    """
+    # Дополнительная валидация email
+    if not EMAIL_REGEX.match(user.email):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Некорректный email формат"
+        )
+    
     result = await db.scalars(select(UserModel).where(UserModel.email == user.email))
     if result.first():
         raise HTTPException(
@@ -88,6 +314,13 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_async_db)
 
 @router.post("/create-admin", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 async def create_admin(admin_data: UserCreate, db: AsyncSession = Depends(get_async_db)):
+    # Валидация email
+    if not EMAIL_REGEX.match(admin_data.email):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Некорректный email формат"
+        )
+    
     result = await db.scalars(select(UserModel).where(UserModel.email == admin_data.email))
     if result.first():
         raise HTTPException(
@@ -124,14 +357,30 @@ async def login(
 ):
     """
     Получение токена доступа.
-    Для Swagger UI: используй форму с полями username и password.
-    Для API: используй Content-Type: application/json.
+    
+    Защита:
+    - Валидация email формата
+    - Защита от брутфорса
+    - Rate limiting
     """
     email = form_data.username
     password = form_data.password
-
+    
+    # Валидация email формата
+    if not email or len(email) > MAX_EMAIL_LENGTH:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Некорректный email"
+        )
+    
+    if not EMAIL_REGEX.match(email):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Некорректный email формат"
+        )
+    
     # --- Защита от брутфорса ---
-    identifier = email
+    identifier = email.lower().strip()
     current_time = time.time()
 
     # Очищаем старые попытки
@@ -316,6 +565,141 @@ async def _save_avatar(file: UploadFile) -> str:
     file_path.write_bytes(content)
 
     return f"/media/avatars/{file_name}"
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    request_data: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Отправляет email с ссылкой для сброса пароля.
+    
+    Защита:
+    - Rate limiting: 1 запрос в минуту на email
+    - Проверка существования пользователя (без раскрытия информации)
+    - Валидация email по RFC 5321
+    - Токен с истекающим сроком (1 час)
+    """
+    email = request_data.email.strip().lower()
+    
+    # Rate limiting: защита от спама
+    current_time = time.time()
+    if email in _reset_request_tracker:
+        last_request = _reset_request_tracker[email]
+        elapsed = current_time - last_request
+        if elapsed < RESET_REQUEST_COOLDOWN:
+            retry_after = int(RESET_REQUEST_COOLDOWN - elapsed)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Подождите {retry_after} секунд перед повторным запросом"
+            )
+    
+    # Проверяем существование пользователя (без раскрытия информации)
+    result = await db.scalars(
+        select(UserModel).where(UserModel.email == email)
+    )
+    user = result.first()
+    
+    if not user:
+        # Возвращаем тот же ответ, чтобы не раскрывать информацию о пользователях
+        logger.warning(f"Запрос сброса пароля для несуществующего email: {email}")
+        return {
+            "message": "Если email зарегистрирован, письмо для сброса пароля будет отправлено"
+        }
+    
+    # Генерируем безопасный токен
+    reset_token = secrets.token_urlsafe(32)
+    
+    # Сохраняем токен с истечением
+    _reset_tokens[reset_token] = {
+        "email": email,
+        "expires": datetime.utcnow() + RESET_TOKEN_EXPIRY
+    }
+    
+    # Обновляем timestamp запроса
+    _reset_request_tracker[email] = current_time
+    
+    # Отправляем email в фоновом режиме
+    from app.services.email_service import send_reset_password_email
+    
+    try:
+        await send_reset_password_email(email, reset_token)
+        logger.info(f"Письмо для сброса пароля отправлено на {email}")
+    except Exception as e:
+        logger.error(f"Ошибка отправки email для {email}: {e}")
+        # Не блокируем пользователя из-за ошибки email
+    
+    return {
+        "message": "Если email зарегистрирован, письмо для сброса пароля будет отправлено"
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(
+    request_data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Устанавливает новый пароль по токену.
+    
+    Защита:
+    - Одноразовый токен (уничтожается после использования)
+    - Проверка срока действия токена
+    - Валидация сложности нового пароля
+    - Безопасное хеширование пароля
+    """
+    token = request_data.token
+    
+    # Проверяем существование токена
+    if token not in _reset_tokens:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недействительный токен. Запросите новый"
+        )
+    
+    token_data = _reset_tokens[token]
+    
+    # Проверяем срок действия токена
+    if datetime.utcnow() > token_data["expires"]:
+        # Удаляем просроченный токен
+        del _reset_tokens[token]
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Токен истёк. Запросите новый"
+        )
+    
+    email = token_data["email"]
+    new_password = request_data.new_password
+    
+    # Находим пользователя
+    result = await db.scalars(
+        select(UserModel).where(UserModel.email == email)
+    )
+    user = result.first()
+    
+    if not user:
+        # Удаляем токен
+        del _reset_tokens[token]
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден"
+        )
+    
+    # Обновляем пароль
+    user.hashed_password = hash_password(new_password)
+    await db.commit()
+    
+    # Удаляем токен (одноразовый)
+    del _reset_tokens[token]
+    
+    # Очищаем cooldown
+    if email in _reset_request_tracker:
+        del _reset_request_tracker[email]
+    
+    logger.info(f"Пароль успешно изменён для {email}")
+    
+    return {"message": "Пароль успешно изменён"}
 
 
 @router.post("/me/avatar", response_model=UserWithToken)

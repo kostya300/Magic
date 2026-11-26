@@ -8,6 +8,9 @@ import CategoriesPage from './pages/CategoriesPage';
 import ProductCategoriesPage from './pages/ProductCategoriesPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './components/ForgotPsswordJs/ForgotPassword';
+import ResetPassword from './components/ForgotPsswordJs/ResetPassword';
+import AuthSuccess from './components/ForgotPsswordJs/AuthSuccess';
 import Ordersgeneral from './pages/Ordersgeneral';
 import SearchResults from './pages/SearchResults';
 import FavoritePage from './pages/Favorite_page';
@@ -24,6 +27,9 @@ function AppRouter() {
                 <Route path="/orders" element={<Ordersgeneral/>}/>
                 <Route path="/profile/orders" element={<Ordersgeneral/>}/>
                 <Route path="/login" element={<Login/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/reset-password/:token" element={<ResetPassword/>}/>
+                <Route path="/auth-success" element={<AuthSuccess/>}/>
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/categories" element={<CategoriesPage/>}/>
                 <Route path="/products/category/:categoryId" element={<ProductCategoriesPage/>}/>

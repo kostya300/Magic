@@ -22,7 +22,7 @@ function Products({ products, onOpenProduct }) {
             ...p,
             inStock: p.stock > 0,
             rating: p.rating || 0,
-            review_count: 0,
+            reviews: p.reviews || 0,
             oldPrice: Math.round(p.price * 1.15),
           }} onOpen={onOpenProduct} />
         ))}

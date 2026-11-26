@@ -109,7 +109,7 @@ function ProductCard({ product, compact = false, onOpen }) {
         <div className="general-product-stars">
           <Stars rating={product.rating || 0} />
           <span className="general-product-rating">
-            {product.rating || '0'} ({product.review_count || 0})
+            {product.rating || '0'} · {product.reviews || 0}
           </span>
         </div>
         <div className="general-product-footer">

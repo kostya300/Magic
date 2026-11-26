@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy import update
 from app.models.products import Product as ProductModel
 from app.models.categories import Category as CategoryModel
+from app.models.reviews import Review as ReviewModel
 from app.schemas import Product as ProductSchema, ProductCreate, ProductList
 from app.models.users import User as UserModel
 from app.auth import get_current_seller
@@ -174,10 +175,23 @@ async def get_all_products(
             total_stmt = select(func.count()).select_from(ProductModel).where(*filters)
     total = await db.scalar(total_stmt) or 0
 
+    # Subquery для подсчёта количества отзывов
+    review_count_subq = (
+        select(func.count(ReviewModel.id))
+        .where(
+            and_(
+                ReviewModel.product_id == ProductModel.id,
+                ReviewModel.is_active == True
+            )
+        )
+        .correlate(ProductModel)
+        .scalar_subquery()
+    )
+
     # Выборка товаров с фильтрами и пагинацией
     if rank_col is not None:
         products_stmt = (
-            select(ProductModel, rank_col)
+            select(ProductModel, rank_col, review_count_subq.label('review_count'))
             .where(*filters)
             .order_by(desc(rank_col), ProductModel.id)
             .offset((page - 1) * page_size)
@@ -188,13 +202,15 @@ async def get_all_products(
         items = [row[0] for row in rows]
     else:
         products_stmt = (
-            select(ProductModel)
+            select(ProductModel, review_count_subq.label('review_count'))
             .where(*filters)
             .order_by(ProductModel.id)
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
-        items = (await db.scalars(products_stmt)).all()
+        result = await db.execute(products_stmt)
+        rows = result.all()
+        items = [row[0] for row in rows]
 
     return {
         "items": items,
